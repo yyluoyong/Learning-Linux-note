@@ -1,0 +1,72 @@
+\section{虚拟机安装Debian}
+\subsection{分区设置} 
+\par
+安装过程按照提示步骤完成即可,值得注意的是分区的大小,
+\begin{longtable}{l|c|p{0.6\columnwidth}}\hline\hline
+
+
+    /boot & 100M & 启动分区,放在分区最前面\\
+
+    / & 2G $\sim$ 6G & 根分区\\
+
+    /usr & 10G $\sim$ 20G & 用来安装各类软件,可能需要一些容量 \\
+
+    /var & 3G $\sim$ 8G & \\
+
+    /swap & 500M $\sim$ 2G & 交换分区,根据需求适当设置值 \\
+
+    /home & 10G $\sim$ ... & 可以使用LVM,方便以后增加容量 \\
+
+    /temp & & 临时分区,看个人需要设置\\
+
+    \hline
+\end{longtable} 
+\noindent 另外注意留几个G的未挂载分区,方便以后有额外空间作为其他用途.
+
+\subsection{基本工具配置}
+\subsubsection{更新源配置}
+\par
+1. 安装完成以后,继续挂载安装光盘,以便安装必须的软件.此时,可以查看%
+/etc/fstab 文件,可以发现安装光盘是开机挂载的, 查看/etc/apt/sources.list 也%
+可以知道,更新源中包含了该光盘.  
+
+\par
+2. 也可以在安装过程中,根据提示配置网络更新源. 或者在安装完成以后,手动修改/etc/apt/sources.list文件配置,然后运行 ``\verb"apt-get update"" 更新软件列表即可. 
+
+\subsubsection{安装虚拟机增强工具}
+\par
+1. 为了安装虚拟机提供的增强工具,需要基本的开发工具包,包括 make, gcc 等,运行 %
+``\verb|apt-get install build-essential|" .
+
+\par
+2. 增强工具可以使得主机和虚拟机之间更好的共享文件等. 按照虚拟机软件的帮助提示操作即可.安装过程中,可能遇到错误,需要安装 linux-headers, ``\verb"apt-get install linux-headers-`uname -r`"". 
+
+\subsubsection{建立共享文件夹}
+\par
+1. 安装好了增强工具以后,就可以建立主机和虚拟机之间的共享文件夹了. 例如VMware,查询%
+帮助知,在菜单中创建了共享文件夹将 E:$\backslash\backslash$win\_linux\_share 以共享文件名 win\_linux\_share 共享给虚拟机. 修改 /etc/fstab 文件将该文件夹%
+设置为开机挂载\\ 
+\indent\texttt{.host:/  /mnt/win\_share  vmhgfs  defaults  0  0} \\
+此时,虚拟机中即可找到 /mnt/win\_share/win\_linux\_share 这个主机共享的文件夹.
+
+\par
+2. 通常我将下载好的几张Debian的DVD放在该共享文件夹,进一步将这几张光盘设置为%
+开机挂载,同时配置更新源为这几张DVD,这样可以不使用网络本地安装很多需要的软件.修改 /etc/fstab,同时注释cdrom的开机挂载,\\
+\indent\texttt{/mnt/win\_share/win\_linux\_share/xxxDVD1.iso /mnt/mirror/dvd1 $\backslash$ \newline \indent iso9660 defaults,ro,loop 0 0}\\
+\indent\texttt{/mnt/win\_share/win\_linux\_share/xxxDVD2.iso /mnt/mirror/dvd2 $\backslash$ \newline \indent iso9660 defaults,ro,loop 0 0}\\
+\indent\texttt{/mnt/win\_share/win\_linux\_share/xxxDVD3.iso /mnt/mirror/dvd3 $\backslash$ \newline \indent iso9660 defaults,ro,loop 0 0}\\
+修改/etc/apt/sources.list,同时注释cdrom的源,\\
+\indent\texttt{deb file:/mnt/mirror/dvd1 wheezy contrib main}\\
+\indent\texttt{deb file:/mnt/mirror/dvd2 wheezy contrib main}\\
+\indent\texttt{deb file:/mnt/mirror/dvd3 wheezy contrib main}\\
+这里 wheezy 是Debian7系列的版本号. 不要忘了 ``\verb"apt-get update"".
+
+\subsubsection{安装中文输入法}
+若 Ctrl+Space 不能呼出中文输入法,可能是默认的安装不完整.打开新立得软件管理,搜索%
+fcitx 检查安装情况,可以从网上查询哪些部分需要安装,然后一一对比自己的安装情况.%
+例如本人未安装 fcitx-ui-classic, fcitx-m17n 等包导致不能正常使用.
+
+\subsection{KDE桌面环境}
+新立得安装 kde-full 即可,需要注意的是, KDE中文环境不在该软件包的关联中. 另外搜索kde, 并使用 zh 过滤找到相应的简体中文包安装即可. KDE 对应的服务为 kdm, GNOME 对应的服务为 gdm, Ubuntu 的 Unity 对应的服务为 lightdm.
+
+

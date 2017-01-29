@@ -1,0 +1,352 @@
+\section{磁盘高级管理}
+
+\subsection{磁盘配额Quota}
+\subsubsection{简介}
+\begin{itemize}
+    \item 用途：限制用户组和普通用户的磁盘使用量.
+
+    \item 限制: 仅能针对整个文件系统, 内核需支持.
+\end{itemize}
+
+\subsubsection{使用流程}
+\par
+1. 文件系统支持. 开机挂载时,对目标文件系统加入Quota支持. 修改 /etc/fstab 文件:\\
+\parbox{\textwidth}{\qquad \texttt{/sda5 /home ext4 defaults,\textbf{usrquota,grpquota} 1 2}}
+
+\par
+2. 建立配置文件.
+\begin{longtable}{l@{ : }p{0.7\columnwidth}}\hline\hline
+
+    \textbf{用法} & \verb"quotacheck [-avugfm] [挂载点]"  \\
+
+    \texttt{-a} & 扫描所在 /etc/mtab 内还有 Quota 支持的文件系统. 加上此参数%
+    可以不写挂载点.\\
+
+    \texttt{-v} & 显示扫描过程信息 \\
+
+    \texttt{-u} & 针对用户扫描文件与目录的使用情况,会新建 aquota.user\\
+
+    \texttt{-g} & 针对用户组扫描文件与目录的使用情况,会新建 aquota.group \\
+
+    \texttt{-f} & 强制扫描文件系统,并写入新的 Quota 配置文件(危险). \\
+
+    \texttt{-m} & 强制以读写的方式扫描文件系统, 只有特殊情况下使用.\\
+
+    \hline
+\end{longtable}
+一般使用如下命令即可在目标目录下创建 aquota.group 和 aquota.user 两个配置文件:\\
+\parbox{\textwidth}{\qquad \texttt{quotacheck -avug}}
+若确定无人使用 Quota 时,可以强制操作:\\
+\parbox{\textwidth}{\qquad \texttt{quotacheck -avug -mf}}
+
+\par
+3. 启动与关闭.
+\begin{longtable}{l@{ : }p{0.7\columnwidth}}\hline\hline
+
+    \textbf{用法} & \verb"quotaon [-avug]" \newline
+                    \verb"quotaon [-vug] [挂载点]"  \\
+    \multicolumn{2}{l}{开启Quota, 参数意义同前面.}\\
+
+    \textbf{用法} & \verb"quotaoff [-a]" \newline
+                    \verb"quotaoff [-ug] [挂载点]"  \\
+
+    \multicolumn{2}{l}{关闭Quota, 参数意义同前面.}\\
+
+    \hline
+\end{longtable}
+
+\par
+4. 设置限制信息.
+\begin{longtable}{l@{ : }p{0.7\columnwidth}}\hline\hline
+
+    \textbf{用法} & \verb"edquota [-u 用户名] [-g 用户组名]" \newline
+                    \verb"edquota -t"  \newline
+                    \verb"edquota -p 范本账号 -u 新账号"\\
+    \multicolumn{2}{l}{\bfseries 参数}\\
+
+    \texttt{-u} & 进入Quota编辑界面设置针对该用户的限制值.\\
+
+    \texttt{-g} & 进入Quota编辑界面设置针对该用户组的限制值.\\
+
+    \texttt{-t} & 修改宽限时间,默认是7天.\\
+
+    \texttt{-p} & 将已设置账号的设置信息复制给新的账户.\\
+
+    \hline
+\end{longtable}
+针对账号进行限制7个字段的意义
+\begin{itemize}
+    \item 文件系统：表明针对哪一个文件系统进行设置.
+
+    \item 磁盘容量(blocks): Quota自动计算, 单位为KB,不要修改.
+
+    \item soft: 容量soft限制, 单位为KB.
+
+    \item hard: 容量hard限制, 单位为KB.
+
+    \item 文件数量(inodes): Quota自动计算, 单位为个数,不要修改.
+
+    \item soft: inode的soft限制, 单位为KB.
+
+    \item hard: inode的hard限制, 单位为KB.
+\end{itemize}
+soft和hard值为0时,表示没有限制.
+
+\par
+5. 限制报表.
+\begin{longtable}{l@{ : }p{0.7\columnwidth}}\hline\hline
+
+    \textbf{用法} & \verb"quota [-uvs 用户名]" \newline
+                    \verb"quota [-gvs 用户组名]"  \newline
+                    \verb"requota -a [-uvgs]" \texttt{$\Longleftarrow$ 针对整个文件系统的限额报表}\\
+    \multicolumn{2}{l}{\bfseries 参数}\\
+
+    \texttt{-s} & 使用1024为倍数来指定单位.\\
+
+    \hline
+\end{longtable}
+
+\par
+6. 其他. 直接设置命令如下:\\
+\parbox{\textwidth}{\qquad \texttt{setquota [-u|-g] 名称 block(soft) block(hard) $\backslash$ \\ inode(soft) inode(hard) 文件系统}}
+
+
+\subsection{RAID}
+\subsubsection{简介}
+\begin{itemize}
+\item RAID 0(等量模式,stripe): 性能最佳.
+
+\item RAID 1(映像模式,mirror):完整备份.
+
+\item RAID 5:需要三块以上磁盘,可以允许损坏一块磁盘.
+
+\item RAID 6:可以允许损坏两块磁盘.
+
+\item Spare Disk: 预备磁盘. 当有磁盘损坏时,可加入该磁盘,系统会自动重建数据系统.
+\end{itemize}
+
+
+\subsubsection{软件RAID设置流程}
+\par
+1. 建立\footnote[1]{Debian、Ubuntu需要安装 mdadm}.
+\begin{longtable}{l@{ : }p{0.7\columnwidth}}\hline\hline
+
+    \textbf{用法} & \verb"mdadm --detail /dev/md[0-9]" \newline
+                    \texttt{mdadm --create --auto=yes /dev/md[0-9] $\backslash$\newline --level=[015]  --raid-devices=N  --spare-devices=N $\backslash$\newline /dev/sdx /dev/sdy ...}  \\
+    \multicolumn{2}{l}{\bfseries 参数}\\
+
+    \texttt{--create} & 新建RAID.\\
+
+    \texttt{--auto=yes} & 新建后面接的软件磁盘阵列设备.\\
+
+    \texttt{--level=[015]} & 磁盘阵列等级.\\
+
+    \texttt{--raid-devices=N} & 使用几个磁盘作为磁盘阵列设备.\\
+
+    \texttt{--spare-devices=N} & 使用几个备用设备.\\
+
+    \texttt{--detail} & 列出磁盘阵列设备的详细信息. 也可以使用 \texttt{cat /proc/mdstat} 查看.\\
+
+    \hline
+\end{longtable}
+
+\par
+2. 救援.
+\begin{longtable}{l@{ : }p{0.7\columnwidth}}\hline\hline
+
+    \textbf{用法} & \texttt{mdadm --manage /dev/md[0-9] [--add 设备] $\backslash$\newline [-remove 设备] [--fail 设备]}  \\
+    \multicolumn{2}{l}{\bfseries 参数}\\
+
+    \texttt{--add} & 将后面的设备加入该 md 中.\\
+
+    \texttt{--remove} & 将后面的设备从该 md 中删除.\\
+
+    \texttt{--fail} & 将后面的设备设置为出错状态.\\
+
+    \hline
+\end{longtable}
+
+\par
+3. 开机自动启动并挂载.
+\begin{itemize}
+\item 设置 /etc/mdadm.conf 文件\footnote[1]{查询UUID: 1. \texttt{blkid}; 2. \texttt{ls -l /dev/disk/by-uuid}； 3. \texttt{madadm --detail}}: \verb|ARRAY /dev/md0 UUID=...|
+
+\item 修改 /etc/fstab 设置开机挂载.
+\end{itemize}
+
+\par
+4. 关闭. 直接关闭: \verb|mdadm --stop /dev/md0|. 或者先卸载, 然后在 /etc/fstab 中信息删除.
+
+\subsection{LVM}
+\subsubsection{基本概念}
+\begin{itemize}
+    \item PV: Physical Volum, 物理卷.
+    
+    \item VG: Volume Group, PV 组成的大磁盘.
+    
+    \item PE: Physical Extend, 物理扩展块, LVM 的单元, 默认为 4MB, 最多包含 65534 个, 故LVM最多只有 256G, 可通过修改PE大小改变LVM最大容量. 
+        
+    \item LV: Logical Volume, 逻辑卷, 最终VG会被分成一个个的LV.
+\end{itemize}
+
+\subsubsection{制作分区}
+制作物理分区,并设置systemID为8e.
+
+\subsubsection{PV阶段}
+\begin{longtable}{l@{ : }p{0.5\columnwidth}}\hline\hline
+
+    \texttt{pvcreate} & 将物理分区新建为PV, 示范:\newline``\texttt{pvcreate /dev/sda\{6,7,8,9\}}"\\
+
+    \texttt{pvscan} & 查询当前系统里具有PV属性的磁盘.\\
+
+    \texttt{pvdisplay} & 显示当前系统PV状态.\\
+
+    \texttt{pvremove} & 将分区PV属性删除,示范:\newline
+        ``\texttt{pvremove /dev/sda6}"\\
+
+    \hline
+\end{longtable}
+
+\subsubsection{VG阶段}
+\begin{longtable}{l@{ : }p{0.7\columnwidth}}\hline\hline
+
+    \texttt{vgcreate} & 新建VG,示范:\newline
+        ``\verb"vgcreate [-s PE大小[mgt]] VG名称 PV名称""\\
+
+    \texttt{vgscan} & 查询当前系统里的VG.\\
+
+    \texttt{vgdisplay} & 显示当前系统VG状态.\\
+
+    \texttt{vgextend} & 在VG内增加额外的PV,示范:\newline
+        ``\verb"vgextend VG名称 磁盘分区""\\
+
+    \texttt{vgreduce} & 在VG内删除PV,示范:\newline
+        ``\verb"vgreduce VG名称 磁盘分区""\\
+
+    \texttt{vgchange} & 设置VG是否启动(active),示范:\newline
+        ``\verb"vgchange VG名称""\\
+
+    \texttt{vgremove} & 删除一个VG,示范:\newline
+        ``\verb"vgremove VG名称""\\
+
+    \hline
+\end{longtable}
+
+\subsubsection{LV阶段}
+\begin{longtable}{l@{ : }p{0.7\columnwidth}}\hline\hline
+
+    \texttt{lvcreate} & 新建LV.示范:\newline
+        ``\verb"lvcreate [-L N[mgt]] [-n LV名称] VG名称""\newline
+        ``\verb"lvcreate [-l PE个数] [-n LV名称] VG名称""\\
+
+    \texttt{lvscan} & 查询当前系统里的LV.\\
+
+    \texttt{lvdisplay} & 显示当前系统LV状态.\\
+
+    \texttt{lvextend} & 在LV内增加容量.\\
+
+    \texttt{lvreduce} & 在LV内减少容量\\
+
+    \texttt{lvremove} & 删除一个LV,示范:\newline
+        ``\verb"lvremove LV设备名""\\
+
+    \texttt{lvresize} & 对LV进行容量大小调整.\\
+
+    \hline
+\end{longtable}
+
+\subsubsection{文件系统阶段}
+格式化建立的LV设备并挂载使用.
+
+\subsubsection{完整示例}
+\par
+\textbf{1. 制作分区.} 假设得到4个分区: /dev/sda\{6,7,8,9\},并将systemID设置为 8e (注:不设置也没关系,只是某些LVM检测命令可能检测不到该分区)\footnote[2]{本人开始忘记设置,在最终制作好LVM以后,再直接将 systemID 改为 8e, 导致重启系统遇到错误, Debian经过一段时间的自我排错完成了开机,真是惊喜.}, 每个分区1G.
+
+\par
+\textbf{2. VG 阶段.}\\
+\indent\texttt{\qquad vgcreate -s 16M yongvg /dev/sda\{6,7,8\}}
+
+\par
+\textbf{3. LV 阶段.} 查看VG状态可知有 189 个PE.\\
+\indent\texttt{\qquad lvcreate -l 189 -n yonglv yongvg}
+
+\par
+\textbf{4. 文件系统阶段.} \\
+\indent\texttt{\qquad mkfs.ext4 /dev/yongvg/yonglv}\\
+\indent\texttt{\qquad mkdir /mnt/lvm}\\
+\indent\texttt{\qquad mount /dev/yongvg/yonglv /mnt/lvm}
+
+\par
+\textbf{5. 扩容.} 
+\par
+\qquad\verb"#将PV分区加入VG"\\
+\indent\texttt{\qquad vgextend yongvg /dev/sda9}
+
+\par
+\qquad\verb"#查看可知VG多了63个FreePE"\\
+\indent\texttt{\qquad vgdisplay} \\
+\indent\qquad\qquad$\cdots$\\
+\indent\qquad\qquad\verb"Total PE              315"\\
+\indent\qquad\qquad\verb"Alloc PE / Size       252 / 3.94 GiB"\\
+\indent\qquad\qquad\verb"Free  PE / Size       63 / 1008.00 MiB"\\
+\indent\qquad\qquad$\cdots$
+
+\par
+\qquad\verb"#将这些FreePE加入LV"\\
+\indent\texttt{\qquad lvresize -l +63 /dev/yongvg/yonglv}
+
+\par
+\qquad\verb"#文件系统扩充"\\
+\indent\texttt{\qquad resize2fs /dev/yongvg/yonglv}
+
+\par
+\textbf{6. 缩减.} 
+\par
+\qquad\verb"#可以发现每个PV 为1008M, 欲抽离一个PV, 剩余4032M"\\
+\indent\texttt{\qquad pvscan}\\
+\indent\qquad\qquad\verb"PV /dev/sda6   VG yongvg   lvm2 [1008.00 MiB / 0    free]"\\
+\indent\qquad\qquad\verb"PV /dev/sda7   VG yongvg   lvm2 [1008.00 MiB / 0    free]"\\
+\indent\qquad\qquad\verb"PV /dev/sda8   VG yongvg   lvm2 [1008.00 MiB / 0    free]"\\
+\indent\qquad\qquad\verb"PV /dev/sda9   VG yongvg   lvm2 [1008.00 MiB / 0    free]"
+
+\par
+\qquad\verb"#卸载, 增加可以在线处理, 减小不能"\\
+\indent\texttt{\qquad umount /mnt/lvm}
+
+\par
+\qquad\verb"#磁盘检查, 缩减前的必须步骤"\\
+\indent\texttt{\qquad e2fsck -f /dev/yongvg/yonglv}
+
+\par
+\qquad\verb"#调整到目标容量"\\
+\indent\texttt{\qquad resize2fs /dev/yongvg/yonglv 4032M} 
+
+\par
+\qquad \verb"#挂载使用" \\
+\indent\qquad \verb"mount /dev/yongvg/yonglv /mnt/lvm"
+
+\par
+\qquad \verb"#降低LV的PE数量" \\
+\indent\texttt{\qquad lvresize -l -63 /dev/yongvg/yonglv}\
+
+\par
+\qquad \verb"#查看PV情况, 看看FreePE所在位置" \\
+\indent\texttt{\qquad pvdisplay}
+
+\par
+\qquad \verb"#假设欲抽离 /dev/sda9, 而FreePE在 /dev/sda8 中"\\
+\indent\qquad \verb"#此时需要转移PE" \\
+\indent\texttt{\qquad pvmove /dev/sda9 /dev/sda8}
+
+\par
+\qquad \verb"#再次查看可发现FreePE在 /dev/sda9 中" \\
+\indent\texttt{\qquad pvdisplay}
+
+\par
+\qquad \verb"#从VG中移出" \\
+\indent\texttt{\qquad vgremove /dev/sda9}
+
+\subsubsection{制作快照}
+\par
+\qquad \verb"#-s 表示 snapshot 快照功能之意" \\
+\indent\texttt{\qquad lvcreate -l 60 -s -n yongss /dev/yongvg/yonglv}

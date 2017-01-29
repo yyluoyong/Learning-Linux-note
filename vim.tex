@@ -1,0 +1,336 @@
+\section{vim}
+
+%将图片计数器重启为0
+\setcounter{figure}{0}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=\textwidth]{pic/vim&control.jpg}
+\caption{vim 常用命令查询}
+\end{figure}
+
+\subsection{按键说明}
+\begin{longtable}{c@{ \quad }p{0.7\columnwidth}}\hline\hline
+
+    \multicolumn{2}{c}{\bfseries vim按键说明}
+
+    \endhead
+
+    [Ctrl]+f & 下一页, 相当于[Page Down]\footnote[1]{Debian和Ubuntu预装的是Vim tiny, 需要安装完整版.}\\
+
+    [Ctrl]+b & 上一页, 相当于[Page Up]\\
+
+    0或[Home] & 移动到这一行最前面的字符\\
+
+    \$或[End] & 移动到这一行最后一个字符\\
+
+    G & 移动到这个文件的最后一行\\
+
+    nG & 移动到第 n 行\\
+
+    gg & 移动到文件的第1行\\
+
+    /word & 向下搜索字符串\\
+
+    :n1,n2s/old/new/g[c] & 将第 n1 至 n2 行之间的字符串替换, c表示要经过用户确认. \$ 表示最后一行.\\
+
+    x,X & 分别为向后、向前删除一个字符\\
+
+    dd & 删除光标所在行\\
+
+    ndd & 删除n行\\
+
+    yy & 复制光标所在行\\
+
+    nyy & 复制n行\\
+
+    p,P & 分别为向下和向上粘贴\\
+    
+    J & 合并光标所在行以及下一行\\
+
+    u & 还原\\
+
+    [Ctrl]+r & 重复, 与 u 对应\\
+
+    . & 重复前一个操作\\
+
+    \hline
+\end{longtable} 
+
+\subsection{块选择}
+\begin{longtable}{c@{ \quad }c}\hline\hline
+
+    \multicolumn{2}{c}{\bfseries 块选择按键}
+
+    \endhead
+
+    V & 字符与行选择\\
+
+    [Ctrl]+v & 块选择 \\
+
+    yy & 复制选中部分 \\
+    
+    dd & 删除选择部分\\
+
+    o & 切换高亮选区的活动端\\
+    \hline
+\end{longtable} 
+
+\subsection{有用的短命令}
+\begin{longtable}{lll}\hline\hline
+
+	\textbf{复合命令} & \textbf{等效的长命令} & \textbf{意义}\\
+
+    \endhead
+
+    C & c\$ & 替换该行光标之后部分(含光标) \\
+
+    s & cl & 替换光标所在处字符 \\
+
+    S & \verb|^|c & 替换整行(插入光标在原该行第一个非空白字符处) \\
+    
+    I & \verb|^|i & 行首插入\\
+
+    A & \$a & 行尾插入\\
+	
+    o & A<CR> & 开启空白行\\
+	
+    O & ko & 在上方开启空白行\\
+
+    \hline
+\end{longtable} 
+
+\subsection{操作命令符}
+\begin{longtable}{ll}\hline\hline
+
+	\textbf{命令} & \textbf{意义}\\
+
+    \endhead
+
+    c & 修改 \\
+
+    d & 删除\\
+
+    y & 复制到寄存器 \\
+    
+    g$\sim$ & 反转大小写\\
+
+    gu & 转换为小写\\
+	
+    gU & 转换为大写\\
+	
+    > & 增加缩进\\
+
+    < & 减小缩进\\
+
+    = & 自动缩进\\
+
+	! & 使用外部程序过滤{motion}所跨越的行\\
+    \hline
+\end{longtable} 
+ 
+\subsection{Ex命令}
+\begin{longtable}{ll}\hline\hline
+
+	\textbf{命令} & \textbf{意义}\\
+
+    \endhead
+
+	\texttt{:[range]delete [x]} & 删除指定范围内的行[到寄存器x中] \\
+
+	\texttt{:[range]yank [x]} & 复制指定范围的行[到寄存器x中]\\
+
+		\texttt{:[range]put [x]} & 在指定行后粘贴寄存器x中的内容\\
+
+		\texttt{:[range]copy \{address\} }& 在指定范围内的行拷贝到 \{address\} \\
+
+	\texttt{:[range]move \{address\}} & 在指定范围内的行移动到 \{address\} \\
+	
+	\texttt{:[range]join} & 连接指定范围内的行\\
+
+		\texttt{:[range]normal \{commands\}} & 对指定范围内的每一行执行普通模式命令\\
+
+	\texttt{:[range]s/\{pattern\}/\{string\}/[flags] }& 按模式替换\\
+
+	\texttt{:[range]global/\{pattern\}/[cmd]} & 对匹配行执行Ex命令\\
+
+    \hline
+\end{longtable} 
+
+
+\subsection{分割窗口}
+\subsubsection{切割窗口}
+\begin{longtable}{ll}\hline\hline
+
+	\textbf{命令} & \textbf{意义}\\
+
+    \endhead
+
+	<C-w>s & 水平切分当前窗口,新窗口仍然显示当前缓冲区 \\
+
+	<C-w>v & 垂直切分当前窗口,新窗口仍然显示当前缓冲区 \\
+
+	:sp[lit] \{file\} & 水平切分当前窗口,并在新窗口载入文件 \\
+
+	:vsp[lit] \{file\} & 垂直切分当前窗口,并在新窗口载入文件 \\
+
+    \hline
+\end{longtable} 
+
+\subsubsection{切换窗口}
+\begin{longtable}{ll}\hline\hline
+
+	\textbf{命令} & \textbf{意义}\\
+
+    \endhead
+
+	<C-w>w & 在窗口间循环切换 \\
+
+	<C-w>h & 切换到左边的窗口 \\
+
+	<C-w>j & 切换到下边的窗口 \\
+
+	<C-w>k & 切换到上边的窗口 \\
+
+	<C-w>l & 切换到右边的窗口 \\
+
+    \hline
+\end{longtable} 
+
+\subsubsection{关闭窗口}
+\begin{longtable}{lll}\hline\hline
+
+	\textbf{Ex命令} &\textbf{普通模式命令}& \textbf{意义}\\
+
+    \endhead
+
+	\texttt{:clo[se]} & <C-w>c & 关闭活动窗口 \\
+
+		\texttt{:on[ly]} & <C-w>o & 保留活动活动窗口,关闭其他窗口 \\
+
+    \hline
+\end{longtable} 
+
+\subsubsection{重排窗口}
+\begin{longtable}{ll}\hline\hline
+
+	\textbf{命令} & \textbf{意义}\\
+
+    \endhead
+
+	<C-w>= & 使所以窗口等宽、等高 \\
+
+	<C-w>\_ & 最大化活动窗口的高度 \\
+	
+	<C-w>| & 最大化活动窗口的宽度 \\
+
+	[N]<C-w>\_ & 把活动窗口的高度设为[N]行 \\
+
+	[N]<C-w>| & 把活动窗口的宽度设为[N]列 \\
+
+    \hline
+\end{longtable} 
+
+\subsection{使用标签页}
+\subsubsection{打开与关闭}
+\begin{longtable}{ll}\hline\hline
+
+	\textbf{命令} & \textbf{意义}\\
+
+    \endhead
+
+	\texttt{:tabe[dit]} \{filename\} & 在新标签打开文件 \\
+
+	\texttt{<C-w>T} & 把当前窗口移动到一个新的标签 \\
+	
+	\texttt{:tabc[lose]} & 关闭当前标签页及其包含的所有窗口 \\
+
+	\texttt{:tabo[nly]} & 只保留活动标签页,关闭所以其他标签页 \\
+
+    \hline
+\end{longtable} 
+
+\subsubsection{标签页切换}
+\begin{longtable}{lll}\hline\hline
+
+	\textbf{命令} & \textbf{普通模式命令} & \textbf{意义}\\
+
+    \endhead
+
+	\texttt{:tabn[ext] \{N\}} & \{N\}gt & 切换到编号为N的标签页 \\
+
+	\texttt{:tabn[ext]} & gt & 切换下一个标签页 \\
+	
+	\texttt{:tabn[revious]} & gT & 切换上一个标签页 \\
+
+    \hline
+\end{longtable} 
+
+\subsection{文本对象}
+\subsubsection{分隔符文本对象}
+\begin{longtable}{ll}\hline\hline
+
+	\textbf{文本对象} & \textbf{选择区域}\\
+
+    \endhead
+
+	\texttt{a) 或 ab}  & 一对圆括号 \\
+
+	\texttt{i) 或 ib} & 圆括内部 \\
+	
+	\texttt{a\} 或 aB} & 一对花括号 \\
+
+	\texttt{i\} 或 iB} & 花括号内部 \\
+
+	\texttt{a]} & 一对方括号 \\
+
+	\texttt{i]} & 方括号内部 \\
+
+	\texttt{a>} & 一对尖括号 \\
+
+	\texttt{i>} & 尖括号内部 \\
+
+	\texttt{a'} & 一对单引号 \\
+
+	\texttt{i'} & 单引号内部 \\
+
+	\texttt{a"} & 一对双引号 \\
+
+	\texttt{i"} & 双引号内部 \\
+	
+	\texttt{a`} & 一对反单引号 \\
+
+	\texttt{i`} & 反单引号内部 \\
+
+	\texttt{at} & 一对XML标签 \\
+
+	\texttt{it} & XML标签内部 \\
+    \hline
+\end{longtable} 
+
+\subsubsection{范围文本对象}
+\begin{longtable}{ll}\hline\hline
+
+	\textbf{文本对象} & \textbf{选择范围}\\
+
+    \endhead
+
+	\texttt{iw} & 当前单词\\
+
+	\texttt{aw} & 当前单词及一个空格 \\
+	
+	\texttt{iW} & 当前字串 \\
+
+	\texttt{aW} & 当前字串及一个空格 \\
+
+	\texttt{is} & 当前句子 \\
+
+	\texttt{as} & 当前句子及一个空格 \\
+
+	\texttt{ip} & 当前段落 \\
+
+	\texttt{ap} & 当前段落及一个空行 \\
+
+	\texttt{iW} & 当前字串及一个空格 \\
+    \hline
+\end{longtable}

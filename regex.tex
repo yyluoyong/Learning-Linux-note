@@ -1,0 +1,129 @@
+\section{正则表达式与文件格式化处理}
+%将表格计数器重启为0
+\setcounter{table}{0}
+
+\subsection{正则表达式}
+\begin{table}[h]
+\centering
+\renewcommand{\arraystretch}{1.3}
+\begin{tabular}{c|c}
+  \hline
+  % after \\: \hline or \cline{col1-col2} \cline{col3-col4} ...
+  RE字符 & 意义 \\\hline
+  $\^$word & 待查找的字符串在行首 \\\hline
+   word\$ & 待查找的字符串在行尾  \\\hline
+   .& 一定有一个任意字符 \\\hline
+   $\backslash$ & 转义字符,将特殊符号的特殊意义去除 \\\hline
+   * & 重复零个或无穷多个前一个字符 \\\hline
+   [list] & 从字符集合找出想要的字符 \\\hline
+   [n1-n2] & \texttt{-} 代表连续字符  \\\hline
+   [ $\^$list] & 找出不属于字符集合的字符 \\\hline
+   $\backslash$\{n,m$\backslash$\} & 连续n到m个前一个字符  \\\hline
+\end{tabular}
+\caption{基础正则表达式}
+\end{table}
+
+\typeout{测试\arabic{table}}
+
+\begin{table}[h]
+\centering
+\renewcommand{\arraystretch}{1.3}
+\begin{tabular}{c|c}
+\hline
+  特殊符号  & 代表意义 \\\hline
+  [:alnum:] & 大小写字母以及数字, 0-9, A-Z, a-z \\\hline
+  [:alpha:] & 大小写字母, A-Z \\\hline
+  [:blank:] & 空格键与[Tab]键 \\\hline
+  [:cntrl:] & 控制按键, CR, LF, Tab, Del等 \\\hline
+  [:digit:] & 数字, 0-9 \\\hline
+  [:graph:] & 除空格符(空格键与[Tab]键)外的其他按键 \\\hline
+  [:lower:] & 小写字符, a-z \\\hline
+  [:print:] & 可以被打印的字符 \\\hline
+  [:punct:] & 标点符号,\verb|"'?!;:#$| \\\hline
+  [:upper:] & 大写字符, A-Z \\\hline
+  [:space:] & 任何产生空白的字符,空格键、[Tab]键、CR等 \\\hline
+  [:xdigit:] & 十六进制数字 \\\hline
+\end{tabular}
+\caption{特殊符号}
+\end{table}
+
+\begin{table}[h]
+\centering
+\renewcommand{\arraystretch}{1.3}
+\begin{tabular}{c|c}
+\hline
+  RE 字符  & 意义 \\\hline
+  \texttt{+} & 重复一个或多个前一个RE字符 \\\hline
+  \texttt{?} & 零个或一个RE字符 \\\hline
+  \texttt| & 用或(or)的方式找出字符串 \\\hline
+  \texttt{()} & 找出``组"字符串 \\\hline
+  \texttt{()+} & 多个重复组 \\\hline
+\end{tabular}
+\caption{扩展正则表达式}
+\end{table}
+
+\newpage
+\subsection{文本处理工具}
+\begin{itemize}
+    \item \texttt{sed [-nefr] [动作]}:作用于一行
+    \begin{longtable}{c@{: }p{0.8\columnwidth}}\hline\hline
+      \multicolumn{2}{l@{}}{\bfseries 参数:}\\
+      \texttt{-n} & 使用安静模式,只有经过sed特殊处理的行才列出 \\
+      \texttt{-e} & 直接在命令行模式上进行sed的动作编辑,若不加该参数,则sed后接的动作要以\texttt{''}两个单引号括住 \\
+      \texttt{-f} & \texttt{-f filename} 可直接执行filename文件中的sed动作 \\
+      \texttt{-r} & 支持扩展正则表达式语法(默认是基础正则表达式语法) \\
+      \texttt{-i} & 直接修改文件内容,而不是由屏幕输出 \\
+      \multicolumn{2}{l@{}}{\bfseries 动作: \texttt{[n1[,n2]]] function}}\\
+      \texttt{a} & 新增,后接字符串,出现在新的一行(当前行的下一行),例如, \texttt{'2a new line'}, 第2行后%
+      加上字符串 \\
+      \texttt{c} & 替换,后接字符串,替换n1, n2之间的行  \\
+      \texttt{d} & 删除,例如, \texttt{'2,5d'}, 删除第2至5行 \\
+      \texttt{i} & 插入,后接字符串,出现在新的一行(当前行的上一行) \\
+      \texttt{p} & 打印,通常与 \texttt{sed -n} 一起运行 \\
+      \texttt{s} & 替换,可搭配正则表达式,例如, \texttt{sed 's/old/new/g'} \\\hline
+    \end{longtable}
+
+    需要注意的是,正则表达式置于//之间,例如,
+    \verb|sed - r '/#\.\*\$/ d'|, 删除所有以 \verb|#| 号开头或者空白的行.这个命令可以获取文档中除去注释和空白行后的有效信息.
+
+    \item \texttt{格式化打印: printf '\!打印格式' 实际内容}
+    \begin{longtable}{c@{: }p{0.8\columnwidth}}\hline\hline
+      \multicolumn{2}{l@{}}{\bfseries 参数:}\\
+      \texttt{$\backslash$a} & 警告声音输出 \\
+      \texttt{$\backslash$b} & 退格键(backspace)  \\
+      \pagebreak[4]
+      \texttt{$\backslash$f} & 清除屏幕(form fedd) \\
+      \texttt{$\backslash$n} & 输出新的一行 \\
+      \texttt{$\backslash$r} & Enter按键 \\
+      \texttt{$\backslash$t} & 水平的[tab]按键 \\
+      \texttt{$\backslash$xNN} & \texttt{NN} 为两位数的数字,转换数字为字符 \\
+      \multicolumn{2}{l@{}}{\bfseries C语言变量格式:}\\
+      \texttt{\%ns} & 输出字符串 \\
+      \texttt{\%ni} & 输出整数\\
+      \texttt{\%N.nf} & 输出浮点数 \\\hline
+    \end{longtable}
+
+    \item \texttt{awk}:将一行分段处理
+    \begin{longtable}{c@{: }p{0.8\columnwidth}}\hline\hline
+
+     \multicolumn{2}{l@{}}{\bfseries 使用:}\\
+      \multicolumn{2}{l@{}}{ \texttt{awk '\!条件类型1 \{动作1\}%
+      条件类型2 \{动作2\} ...' filename}}\\\hline
+
+      \multicolumn{2}{l@{}}{\bfseries 内置变量:}\\
+      \texttt{NF} & 每一行(\$0)拥有的字段总数 \\
+      \texttt{NR} & 目前awk所处的是``第几行"数据 \\
+      \texttt{FS} & 目前的分隔字符,默认是空格键 \\\hline
+
+      \multicolumn{2}{l@{}}{\bfseries 逻辑运算符: $>,<,>=,<=,==,!=$}\\\hline
+
+    \end{longtable}
+
+    awk以行为一次处理单位,将一行分成各个字段填入\$0,\$1,\$2等变量中.
+
+    \item \texttt{diff}:以行为单位比较两个文件之间的区别
+
+    \item \texttt{cmp}:以字节为单位比较两个文件
+
+    \item \texttt{patch}:制作升级补丁
+\end{itemize} 

@@ -1,0 +1,645 @@
+\section{bash}
+
+\subsection{bash的主要功能}
+\begin{itemize}
+    \item \textbf{命令记忆}: \texttt{$\sim$.bash\_history} 文件会记录上次登录执行过的命令,当前登录的历史命令保存在内存中,注销之后才会保存到该文件.
+
+    \item \textbf{命令与文件补全}:按[Tab]键补全
+
+    \item \textbf{命令别名设置功能}:使用 \texttt{alias} 命令设置
+
+    \item \textbf{作业控制、前台、后台控制}
+
+    \item \textbf{程序脚本}
+
+    \item \textbf{通配符}
+\end{itemize}
+
+\subsection{变量}
+
+\subsubsection{规则}
+\begin{longtable}{lp{0.8\columnwidth}}\hline\hline
+格式 & ``\texttt{varName=varValue}",中间不含空格. \\
+
+要求 &     变量名只能为字母或数字,且开通不能为数字.\\
+
+单、双引号  &   变量内容含空格用单或双引号括起来,双引号可保留特殊字符的特殊含义,%
+    而单引号则将特殊字符视为一般字符.
+    例如, ``\texttt{var="lang is \$LANG"}", 则 ``\texttt{echo \$var}" 得到 ``\texttt{lang is en\_US}";而若改用单引号则得到的是元字符串.\\
+
+转义  &     转义字符``$\backslash$"可将特殊符号(如[Enter], \$, $\backslash$, 空格符,! 等)变为一般字符.\\
+
+反单引号 &     一串命令中,可用反单引号``\verb|`命令`|"或``\$(命令)"来获取信息.\\
+
+累加内容 &     ``\texttt{"\$变量名称"}累加内容"或``\$\{变量\}\verb|累加内容|".\\
+
+子进程用 & \texttt{export} 命令, 导出变量使之成为环境变量. \\
+
+取消变量 & ``\texttt{unset 变量名}".\\
+\hline
+\end{longtable}
+
+\subsubsection{环境变量}
+1. \texttt{env} 命令查看环境变量
+\begin{longtable}{lp{0.8\columnwidth}}\hline\hline
+\multicolumn{2}{l@{}}{\bfseries 部分如下:}\\
+
+ HOME  & 用户主文件夹 \\
+ SHELL  & 使用哪个shell程序 \\
+ HISTSIZE & 保存的历史命令条数, (Ubuntu在set中)  \\
+ MAIL  & 邮箱 \\
+ PATH  & 执行文件查找路径,使用冒号(:)隔开 \\
+ LANG  & 语系数据,对程序执行很重要 \\
+ RANDOM  & 对应/dev/random这个文件，可使用``\$RANDOM"来获取随机数,不同版本可能有差异 \\
+  \hline
+\end{longtable}
+
+\par
+2. \texttt{set} 命令查看所有变量(环境变量与自定义变量)
+\begin{longtable}{lp{0.8\columnwidth}}\hline\hline
+\multicolumn{2}{l@{}}{\bfseries 部分如下:}\\
+
+ HISTFILE  & 历史命令放置文件 \\
+ MAILCHECK  & 每隔多少秒扫描有无新信 \\
+ PS1 & 命令提示符,例如,我设置的是``\verb|[\u@\h: \w]|",详细格式参数如下, \newline
+ \begin{tabular}{l@{: }l}
+    \verb|\d| & 显示出``星期 月 日"的日期格式,如``Mon Feb 2" \\
+    \verb|\H| & 完整的主机名 \\
+    \verb|\h| & 仅取主机名在第一个小数点之前的名字 \\
+    \verb|\t| & 24小时时间, ``HH:MM:SS" \\
+    \verb|\T| & 12小时时间, ``HH:MM:SS" \\
+    \verb|\A| & 24小时时间, ``HH:MM" \\
+    \verb|\@| & 12小时时间格式的上午下午, ``am/pm“  \\
+    \verb|\u| & 用户账号名称 \\
+    \verb|\v| & bash版本信息 \\
+    \verb|\w| & 完整的工作目录 \\
+    \verb|\W| & 利用basename取得的工作目录名 \\
+    \verb|\#| & 执行的第几个命令 \\
+    \verb|\$| & 提示符,root时为 \verb|#|,否则是 \verb|$| \\
+ \end{tabular}
+   \\
+  \hline
+\end{longtable}
+
+\par
+3. \texttt{\$} 是变量,表示关于本shell的PID,用``\verb|echo $$|" 即可查看.
+
+\par
+4. \texttt{?} 表示上一个命令的返回值,一般执行成功返回0,用``\verb|echo $?|" 即可查看.
+
+\par
+5. ``\text{export} 命令名称",可以将自定义变量变成环境变量.子进程只能继承父进程的环境变量.
+
+\subsubsection{读入}
+\par
+1.读取来自键盘的输入: \texttt{read [-pt] variable}
+\begin{longtable}{l@{: }p{0.8\columnwidth}}\hline\hline
+\multicolumn{2}{l}{\bfseries 参数:}\\
+
+  \texttt{-p} & 后面接提示字符 \\
+
+  \texttt{-t} & 后面接等待的秒数 \\
+
+  \multicolumn{2}{l}{ \textbf{示例}: \texttt{read -p "Input name: " -t 30 name}}\\
+  \hline
+\end{longtable}
+
+\par
+2.声明变量类型: \texttt{declare/typeset}, 变量默认类型为字符串.
+\begin{longtable}{l@{: }p{0.8\columnwidth}}\hline\hline
+\multicolumn{2}{l}{  \textbf{使用}: \texttt{declare [-aixr] variable} }\\
+
+  \texttt{-a} & 数组类型,设置: ``\texttt{var[index]=content}",读取建议: ``\texttt{\${var[index]}}" \\
+
+  \texttt{-i} & 整数类型 \\
+
+  \texttt{-x} & 变成环境变量,与export一样 \\
+
+  \texttt{-r} & readonly 类型 \\
+  \hline
+\end{longtable}
+
+\subsubsection{修改}
+
+\par
+1.变量的删除与替换.假设定义了变量``\texttt{myVar=abcdabcd}".
+\begin{longtable}{lp{0.6\columnwidth}}\hline\hline
+
+   \textbf{设置方式} & \makebox[0.55\columnwidth]{\textbf{说明}} \\
+
+   \texttt{\$\{变量}\verb|#|\texttt{关键字\} } & 从头开始寻找,将符合的%
+   \textbf{最短}的数据删除,例如, \verb|echo ${myVar#a*}|,得到的是 \verb|bcdabcd| \\
+
+   \texttt{\$\{变量}\verb|%|\texttt{关键字\} } & 从尾开始寻找,将符合的%
+   \textbf{最短}的数据删除,例如, \verb|echo ${myVar%b*}|,得到的是 \verb|abcda| \\
+
+   \texttt{\$\{变量}\verb|##|\texttt{关键字\} } & 从头开始寻找,将符合的%
+   \textbf{最长}的数据删除,例如, \verb|echo ${myVar##a*}|,得到的是得到的是空字符串  \\
+
+   \texttt{\$\{变量}\verb|%%|\texttt{关键字\} } & 从尾开始寻找,将符合的%
+   \textbf{最长}的数据删除,例如, \verb|echo ${myVar%%b*}|,得到的是 \verb|a| \\
+
+   \texttt{\$\{变量/oldStr/newStr\}} & 替换符合的第一个字符串 \\
+
+   \texttt{\$\{变量//oldStr//newStr\}} & 替换所有符合的字符串 \\\hline
+\end{longtable}
+
+2.变量的测试与替换
+\begin{longtable}{cccc}\hline\hline
+
+\textbf{设置方式}  &  \textbf{str未设置}   &  \textbf{str为空}   &   \textbf{str 非空}   \\
+
+\verb|var=${str-expr}| & \texttt{var=expr} & \texttt{var=} & \texttt{var=\$str}  \\
+
+\verb|var=${str:-expr}| & \texttt{var=expr} & \texttt{var=expr} & \texttt{var=\$str}  \\
+
+\verb|var=${str+expr}| & \texttt{var=} & \texttt{var=expr} & \texttt{var=expr}  \\
+
+\verb|var=${str:+expr}| & \texttt{var=} & \texttt{var=} & \texttt{var=expr}  \\
+
+\verb|var=${str=expr}| & \texttt{str=expr}, \texttt{var=expr} & \texttt{str} 不变, \texttt{var=} & \texttt{str}不变, \texttt{var=\$str}  \\
+
+\verb|var=${str:=expr}| & \texttt{str=expr}, \texttt{var=expr} & \texttt{str=expr}, \texttt{var=expr} & \texttt{str}不变, \texttt{var=\$str}  \\
+
+\verb|var=${str?expr}| & \texttt{expr} 输出至\texttt{stderr} & \texttt{var=} & \texttt{var=\$str}  \\
+
+\verb|var=${str:?expr}| & \texttt{expr} 输出至\texttt{stderr} & \texttt{expr} 输出至\texttt{stderr} & \texttt{var=\$str}  \\\hline
+\end{longtable}
+
+\subsection{bash环境}
+\subsubsection{查找路径}
+\begin{enumerate}
+    \item 以相对/绝对路径执行命令;
+    \item 由\texttt{alias} 找到该命令来执行;
+    \item 由bash内置的(builtin)命令来执行;
+    \item 通过\texttt{\$PATH} 这个变量的顺序找到的第一个命令来执行.
+\end{enumerate}
+
+\subsubsection{欢迎信息}
+\texttt{/etc/issue} 和 \texttt{/etc/issue.net} (telnet连接),可在 %
+\texttt{/etc/motd} 中加入自己想要显示的信息.
+
+\subsubsection{配置文件}
+\par
+1. \texttt{/etc/profile}:系统的整体设置,一般不要修改,该文件主要变量有,
+\begin{longtable}{cl}\hline\hline
+\makebox[0.2\columnwidth]{\textbf{变量}} & \makebox[0.4\columnwidth]{\textbf{作用}} \\\hline
+
+PATH & 会依据UID决定PATH变量要不要含有sbin的系统命令目录 \\
+
+MAIL & 根据账号设置好用户mailbox\\
+
+USER & 根据用户账号设置此变量内容 \\
+
+HOSTNAME & 根据主机hostname命令决定此变量内容 \\
+
+HISTSIZE & 历史命令记录条数 \\\hline
+
+\end{longtable}
+该文件还会调用外部的设置数据,例如,
+\begin{itemize}
+    \item \texttt{/etc/inputrc}:该文件内容为bash热键、[Tab]有无声音等的数据,建议不修改.
+
+    \item \texttt{/etc/profile.d/*sh}:若需要帮所有用户设置一些共享的命令别名时,可以在该目录创建.sh的文件,将数据写入即可.
+
+    \item \texttt{/etc/sysconfig/i18n}:语系配置.
+\end{itemize}
+
+\par
+2.加载完/etc/profile文件之后,接下来会读取个人配置文件,顺序是,
+\begin{itemize}
+    \item \texttt{$\sim$/.bash\_profile}: 会调用 \texttt{$\sim$/.bashrc}
+
+    \item \texttt{$\sim$/.bash\_login}
+
+    \item \texttt{$\sim$/.profile}
+\end{itemize}
+若寻找到其中一个文件,则不再继续读取.
+
+\par
+3. 读入环境配置文件命令: ``\texttt{source} 配置文件". 若配置文件发生了改变,可用此命令将配置文件重新读入.
+
+\par
+4.其他相关的配置文件例如, \texttt{$\sim$/.bash\_history} 记录了历史命令, \texttt{$\sim$/.bash\_logout} 记录了注销bash之后系统的操作.
+
+\subsubsection{环境设置}
+\par
+1. bash默认的组合键
+\begin{longtable}{cl}\hline\hline
+\makebox[0.2\columnwidth]{\textbf{组合键}} & \makebox[0.4\columnwidth]{\textbf{执行结果}} \\\hline
+
+Ctrl+C & 终止目前的命令 \\
+
+Ctrl+D & 输入结束(EOF),例如邮件结束的时候.\footnote[1]{在Debian中,当无字符时,相当于exit.}\\
+
+Ctrl+M & 就是Enter \\
+
+Ctrl+S & 暂停屏幕的输出 \\
+
+Ctrl+Q & 恢复屏幕的输出 \\
+
+Ctrl+U & 在提示符下,将整行命令删除 \\
+
+Ctrl+Z & 暂停目前的命令 \\\hline
+
+\end{longtable}
+
+\par
+2. bash的通配符
+\begin{longtable}{cl}\hline\hline
+\makebox[0.2\columnwidth]{\textbf{组合键}} & \makebox[0.4\columnwidth]{\textbf{执行结果}} \\\hline
+
+\texttt{*} & 代表0个到无穷多个任意字符 \\
+
+\texttt{?} & 代表一定有一个任意字符 \\
+
+\texttt{[]} & 一定有在其中的字符 \\
+
+\texttt{[-]} & 连续字符 \\
+
+\verb|[^]| & 一定有不在其中的字符  \\\hline
+
+\end{longtable}
+
+\par
+3. bash中的特殊字符
+\begin{longtable}{cl}\hline\hline
+\makebox[0.2\columnwidth]{\textbf{符号}} & \makebox[0.4\columnwidth]{\textbf{内容}} \\\hline
+
+\verb|#| & 注释 \\
+
+$\backslash$ & 转义 \\
+
+\texttt{|} & 管道 \\
+
+\texttt{;} & 连续命令分隔符 \\
+
+$\sim$ & 用户主文件夹\\
+
+\verb"$" & 变量前导符\\
+
+\verb"&" & 作业控制,后台运行\\
+
+\verb"!" & 逻辑运算符``非"\\
+
+\verb"/" & 路径分隔符\\
+
+\texttt{>,>>} & 数据流重定向,输出\\
+
+\texttt{<,<<} & 数据流重定向,输入\\
+
+\texttt{''} & 单引号,不具有变量置换功能\\
+
+\texttt{""} & 具有变量置换功能\\
+
+\texttt{``} & 反单引号,优先执行其中的命令\\
+
+\texttt{( )} & 在中间为shell的起始与结束\\
+
+\texttt{\{\}} & 在中间为命令块的组合\\\hline
+
+\end{longtable}
+
+\par
+4. \texttt{stty [-a]}:查看stty参数
+\begin{longtable}{cl}\hline\hline
+\makebox[0.2\columnwidth]{\textbf{符号}} & \makebox[0.4\columnwidth]{\textbf{内容}} \\\hline
+
+\texttt{eof} & 输入结束 \\
+
+\texttt{erase} & 向后删除字符 \\
+
+\texttt{intr} & 送出一个interrupt信号给目前正在运行的程序 \\
+
+\texttt{kill} & 删除所有命令行文字 \\
+
+\texttt{quit} & 送出一个quit信号给目前正在运行的程序\\
+
+\texttt{start} & 在某个进程停止之后,重新启动它的输出\\
+
+\texttt{stop} & 送出一个terminal stop信号给正在运行的程序\\\hline
+
+\end{longtable}
+
+\par
+5. \texttt{set}:设置终端机值.
+
+
+\subsection{数据流}
+\subsubsection{重定向}
+\begin{longtable}{cp{0.6\columnwidth}}\hline\hline
+
+标准输出(\texttt{stdin}) & 代码为0, \verb"<" 或 \verb"<<"(输入结束的意思) \\
+
+标准输出(\texttt{stdout}) & 代码为1, \verb">"(覆盖) 或 \verb">>"(追加) \\
+
+标准错误输出(\texttt{stderr}) & 代码为2, 2\verb">"(覆盖) 或 2\verb">>"(追加)\\\hline
+
+\end{longtable}
+
+\par
+1. 忽略信息,输出至 /dev/null 即可.
+
+\par
+2. 正确与错误数据输出到同一个文件: \texttt{>fileName 2>\&1} 或 \texttt{\&>} .
+
+\subsubsection{命令执行判断}
+\begin{itemize}
+    \item \verb"cmd1 && cmd2" : \texttt{cmd1} 执行完毕,返回正确(\texttt{\$?=0}), 则开始执行cmd2, 否则不执行
+
+    \item \verb"cmd1 || cmd2" : \texttt{cmd1} 执行完毕,返回错误(\texttt{\$?$\neq$0}),则开始执行\texttt{cmd2},否则不执行
+\end{itemize}
+Linux 命令由左往右执行,例如,
+\begin{enumerate}
+\item 测试 \texttt{/tmp/yong} 是否存在\\
+\verb>ls /tmp/yong && echo "exist" || echo "not exist">
+
+\item 创建 \texttt{/tmp/yong/test.txt} \\
+\verb<ls /tmp/yong || mkdir /tmp/yong && touch /tmp/yong/test.txt<
+\end{enumerate}
+
+
+\subsection{管道命令}
+\par
+\textbf{1. \texttt{cut}}:取出一行中想要的部分,包含了其他语言中\texttt{split} 函数的功能.
+\begin{longtable}{c@{: }p{0.8\columnwidth}}\hline\hline
+    \textbf{用法1} & \verb"cut -d '分隔符' -f fields" \\
+
+      \multicolumn{2}{l@{}}{\bfseries 参数:}\\
+
+    \texttt{-d}  & 例如\texttt{' '} 表示以空格分隔字段, \texttt{','} 表示以逗号分隔字段等 \\
+
+    \texttt{-f} & 选取第几个字段,例如, ``\texttt{-f 1,2}" 表示选取第1,2两个字段\\\hline
+
+    \textbf{用法2} & \verb"cut -c 字符范围" \\
+
+    \multicolumn{2}{l@{}}{\bfseries 参数:}\\
+
+    \texttt{-c} & 例如, ``\texttt{-c 12-}"取出每行第12个字符以后的部分, ``\texttt{-c 5-9}"取出每行第5 到第9个字符的部分\\
+
+      \hline
+\end{longtable}
+
+\par
+\textbf{2. \texttt{grep}}:分析一行中信息,取出我们想要的行.
+\begin{longtable}{c@{: }p{0.8\columnwidth}}\hline\hline
+    \textbf{用法1} & \verb"grep [-acinv] [--color=auto] '查找字符串' filename" \\
+
+      \multicolumn{2}{l@{}}{\bfseries 参数:}\\
+
+    \texttt{-a}  & 将binary文件以text文件的方式查找数据 \\
+
+    \texttt{-c} & 计算找到 \verb"'查找字符串'"的次数\\
+
+    \texttt{-i} & 忽略大小写 \\
+
+    \texttt{-n} & 输出行号 \\
+
+   \texttt{ --color=auto}  &  将找到的关键字部分加上颜色显示\\
+
+    \hline
+\end{longtable}
+
+\par
+\textbf{3. \texttt{sort}}:可以依据不同的数据类型来排序.
+\begin{longtable}{c@{: }p{0.8\columnwidth}}\hline\hline
+    \textbf{用法1} & \verb"sort [-fbMnrtuk] [file or stdin]" \\
+
+      \multicolumn{2}{l@{}}{\bfseries 参数:}\\
+
+    \texttt{-f}  & 忽略大小写 \\
+
+    \texttt{-b} & 忽略最前面的空白\\
+
+    \texttt{-M} & 以月份名字来排序,例如, JAN, DEC \\
+
+    \texttt{-n} & 使用``纯数字"进行排序 \\
+
+    \texttt{-r} & 反向排序\\
+
+    \texttt{-u}  & 就是uniq,相同数据仅显示一行 \\
+
+    \texttt{-t}  & 分隔符,默认是[Tab]键 \\
+
+    \texttt{-k}  & 以哪个字段(field)排序  \\
+
+    \hline
+\end{longtable}
+
+\par
+\textbf{4. \texttt{uniq}}:排序完成以后,重复数据仅显示一个.
+\begin{longtable}{c@{: }p{0.8\columnwidth}}\hline\hline
+    \textbf{用法1} & \verb"uniq [-ic]" \\
+
+      \multicolumn{2}{l@{}}{\bfseries 参数:}\\
+
+    \texttt{-i}  & 忽略大小写 \\
+
+    \texttt{-c} & 计数\\
+
+    \hline
+\end{longtable}
+
+\par
+\textbf{5. \texttt{wc}}:统计行数,字数,字符数.
+\begin{longtable}{c@{: }p{0.8\columnwidth}}\hline\hline
+    \textbf{用法1} & \verb"wc [-lwm]" \\
+
+      \multicolumn{2}{l@{}}{\bfseries 参数:}\\
+
+    \texttt{-l}  & 列出行数 \\
+
+    \texttt{-w} & 列出字数(英文单词)\\
+
+    \texttt{-w} & 列出字符数 \\
+
+    \hline
+\end{longtable}
+
+\par
+\textbf{5. \texttt{tee}}:双重定向,将数据流输至文件盒屏幕(stdout).
+\begin{longtable}{c@{: }p{0.8\columnwidth}}\hline\hline
+    \textbf{用法1} & \verb"tee [-a] file" \\
+
+      \multicolumn{2}{l@{}}{\bfseries 参数:}\\
+
+    \texttt{-a}  & 追加方式写入文件 \\
+
+    \hline
+\end{longtable}
+
+\par
+\textbf{6. \texttt{tr}}:删除一段信息当中的某些文字,或者进行替换,类似于其他语言的replace函数.
+\begin{longtable}{c@{: }p{0.8\columnwidth}}\hline\hline
+    \textbf{用法1} & \verb"tr [-ds] SET1" \\
+
+      \multicolumn{2}{l@{}}{\bfseries 参数:}\\
+
+    \texttt{-d}  & 删除\texttt{SET1} 这个字符串 \\
+
+    \texttt{-s}  & 替换掉重复的字符 \\
+
+    \multicolumn{2}{l@{}}{\bfseries 示范:}\\
+
+    \multicolumn{2}{l@{}}{\quad \texttt{tr '[a-z]' '[A-Z]'}: 将小写字符变成大写字符}\\
+
+    \multicolumn{2}{l@{}}{\quad \texttt{tr -d '$\backslash$r'}: 删除DOS断行符}\\
+
+    \hline
+\end{longtable}
+
+\par
+\textbf{7. \texttt{col}}.
+\begin{longtable}{c@{: }p{0.8\columnwidth}}\hline\hline
+    \textbf{用法1} & \verb"col [-xb]" \\
+
+      \multicolumn{2}{l@{}}{\bfseries 参数:}\\
+
+    \texttt{-x}  & 将tab键转换成对等的空格键 \\
+
+    \texttt{-b} & 在文字有反斜杠(/)时,仅保留反斜杠最后接的那个字符 \\
+
+    \hline
+\end{longtable}
+
+\par
+\textbf{8. \texttt{join}}:将两个文件中有相同数据的那一行加在一起.需要注意的是,使用之前,应该对文件进行了排序.
+\begin{longtable}{c@{: }p{0.8\columnwidth}}\hline\hline
+    \textbf{用法1} & \verb"join [-ti12] file1 file2" \\
+
+      \multicolumn{2}{l@{}}{\bfseries 参数:}\\
+
+    \texttt{-t}  & 默认以分隔符分隔数据,并对比第一个字段 \\
+
+    \texttt{-i} & 忽略大小写 \\
+
+    -1 & 后接数字,表示第一个文件用哪个字段分析\\
+
+    -2 & 后接数字,表示第二个文件用哪个字段分析\\
+
+    \multicolumn{2}{l@{}}{\bfseries 示范:}\\
+
+    \multicolumn{2}{l@{}}{\quad \texttt{join -t ':' -1 2 -2 2 a.txt b.txt}}\\
+
+    \hline
+\end{longtable}
+
+\par
+\textbf{9. \texttt{paste}}:将两行粘贴一起,以[tab]键隔开.
+\begin{longtable}{c@{: }p{0.8\columnwidth}}\hline\hline
+    \textbf{用法1} & \verb"paste [-d] file1 file2" \\
+
+      \multicolumn{2}{l@{}}{\bfseries 参数:}\\
+
+    \texttt{-d}  & 后接分隔符,默认以[tab]分隔 \\
+
+    \texttt{-} & file部分写成 \texttt{-}, 表示数据来自stdin \\
+
+    \hline
+\end{longtable}
+
+
+\par
+\textbf{10. \texttt{expand}}:将[tab]键转成空格.
+\begin{longtable}{c@{: }p{0.8\columnwidth}}\hline\hline
+    \textbf{用法1} & \verb"expand [-t] file" \\
+
+      \multicolumn{2}{l@{}}{\bfseries 参数:}\\
+
+    \texttt{-t}  & 后接数字,表示一个[tab]转换为多少个空格键,默认为8个 \\
+
+    \texttt{-} & file部分写成 \texttt{-}, 表示数据来自stdin \\
+
+    \hline
+\end{longtable}
+
+
+\par
+\textbf{11. \texttt{split}}:根据大小或者行数将大文件切割成小文件.
+\begin{longtable}{c@{: }p{0.8\columnwidth}}\hline\hline
+    \textbf{用法1} & \verb"split [-bl] file preName" \\
+
+      \multicolumn{2}{l@{}}{\bfseries 参数:}\\
+
+    \texttt{-b}  & 按大小切割,后接预分隔的大小,单位为b,k,m等 \\
+
+    \texttt{-l} & 按行数切割,后接数字 \\
+
+    \texttt{-} & file部分写成 \texttt{-}, 表示数据来自stdin \\
+
+    \texttt{preName} & 分隔后的文件名的前缀 \\
+
+    \hline
+\end{longtable}
+
+
+\par
+\textbf{12. \texttt{xargs}}:读入stdin的数据,以空格符或断行符进行分辨,将其分割成参数,传递给命令.
+\begin{longtable}{c@{: }p{0.8\columnwidth}}\hline\hline
+    \textbf{用法1} & \verb"xargs [-0epn] command" \\
+
+      \multicolumn{2}{l@{}}{\bfseries 参数:}\\
+
+    \texttt{-0}  & 若stdin含有特殊字符,该参数将其还原为一般字符 \\
+
+    \texttt{-e} & EOF之意,后接字符串,当分析到这个字符串时,停止分析工作 \\
+
+    \texttt{-p} & 执行每个命令的参数时,都会询问用户 \\
+
+    \texttt{-n} & 后接数字,每次command执行时,使用几个参数 \\
+
+    \hline
+\end{longtable}
+
+值得注意的是,减号 \texttt{-} 的作用, 例如,
+``\texttt{tar -cvf 0 /home/yong | tar -xvf -}".
+
+
+\subsection{其他}
+\subsubsection{命令别名}
+\begin{itemize}
+    \item \texttt{alias defineName=command}:
+设置别名规则与设置变量规则几乎相同
+
+    \item \texttt{alias}:查看已有别名
+
+    \item \texttt{unalias defineName}:取消别名
+\end{itemize}
+
+\subsubsection{历史命令}
+\par
+1. \texttt{history}
+\begin{longtable}{c@{: }p{0.8\columnwidth}}\hline\hline
+    \textbf{用法} & \verb"history [n]" \newline
+                    \verb"history [-c]" \newline
+                    \verb"history [-raw] histfiles"
+    \\
+
+      \multicolumn{2}{l@{}}{\bfseries 参数:}\\
+
+    \texttt{-n}  & 数字,列出最近的n条命令 \\
+
+    \texttt{-c} & 将目前shell中所有的history内容清除 \\
+
+    \texttt{-a} & 将目前新增的history命令追加写入hisfiles中 \\
+
+    \texttt{-r} & 将hisfiles的内容读到目前这个shell的history记忆中\\
+
+    \texttt{-w} & 将目前的history记忆内容写入hisfiles中\\
+
+    \hline
+\end{longtable}
+注意,若未加hisfiles,则默认写入 \texttt{$\sim$/.bash\_history} 中,该文件的记录条数与\texttt{HISTSIZE} 这个变量的值有关.
+
+\par
+2. 执行历史命令
+\begin{longtable}{c@{: }p{0.8\columnwidth}}\hline\hline
+
+    \texttt{!number}  & 执行第几条命令 \\
+
+    \texttt{!command} & 由最近的命令向前搜索,寻找开头为command的命令并执行 \\
+
+    \texttt{!!} & 执行上一个命令 \\
+
+    \hline
+\end{longtable} 

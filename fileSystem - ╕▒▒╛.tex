@@ -1,0 +1,294 @@
+\section{文件系统管理}
+\begin{figure}[h]
+\centering
+\includegraphics[width=\textwidth]{pic/fileSystem.jpg}
+\caption{Ext2 文件系统}
+\end{figure}
+
+\subsection{简单操作}
+\par
+\textbf{1. \texttt{df}}:列出文件系统的整体磁盘使用量
+{\kaishu
+\begin{longtable}{l@{ : }p{0.8\columnwidth}}\hline\hline
+
+    \textbf{用法} & \verb"df [-ahikHTm] [目录或文件名]"
+    \\
+
+    \texttt{-a} & 列出所有文件系统\\
+
+    \texttt{-k} & 以KB为容量单位显示\\
+
+    \texttt{-m} & 以MB为容量单位显示\\
+
+    \texttt{-h} & 以容易阅读的方式为容量单位显示\\
+
+    \texttt{-H} & 以 \texttt{M=1000K} 替代 \texttt{M=1024K} 的进位方式\\
+
+    \texttt{-T} & 连同该分区的文件系统名称(如 ext3)也列出\\
+
+    \texttt{-i} & 不以硬盘容量,而以inode数量来显示 \\
+
+    \hline
+\end{longtable}}
+
+\par
+\textbf{2. \texttt{du}}:评估文件系统的磁盘使用量(常用于评估目录所占容量)
+{\kaishu
+\begin{longtable}{l@{ : }p{0.8\columnwidth}}\hline\hline
+
+    \textbf{用法} & \verb"du [-ahskm] 目录或文件名"
+    \\
+
+    \texttt{-a} & 列出所有文件和目录的容量,因为默认仅统计目录下面的文件量而已\\
+
+     \texttt{-k,-m,-h}  & 与 \texttt{df} 中的意义相同 \\
+
+    \texttt{-s} & 列出总量而已,而不列出单个目录占用容量\\
+
+    \texttt{-S} & 不包括子目录下的统计\\
+
+    \hline
+\end{longtable}}
+
+
+\subsection{连接文件}
+\par
+\textbf{1. \texttt{hard link}}:每个文件都会占用一个inode, inode会记录文件具体内容的位置(block)信息. 而目录的block中会记录文件名与文件占用的inode的对应关系, hard link 是在目录block中新建一条文件名连接到某inode的关联记录.
+\par
+例如, \texttt{$\sim$/Desktop} 目录下有 \texttt{test.txt} 的文件
+{\kaishu
+\begin{longtable}{l@{ : }p{0.8\columnwidth}}\hline\hline
+创建 & \texttt{ln test.txt test.ln  $\Leftarrow$ ln targetFile newFileName}\\
+
+查看 & \texttt{ll -i test.txt test.ln}\\
+
+\multicolumn{2}{l}{可以发现两个文件完全一样.}\\
+\hline
+\end{longtable}}
+hard link 的限制是: 不能跨文件系统; 不能连接到目录.
+
+\par
+\textbf{2. \texttt{symbolic link}}:创建一个独立的文件,这个文件会让数据的读取指向%
+它连接的那个文件的文件名. 类似于windows下的快捷方式.
+{\kaishu
+\begin{longtable}{l@{ : }p{0.8\columnwidth}}\hline\hline
+\textbf{用法} & \verb"ln [-sf] 源文件 目标文件"
+    \\
+
+    \texttt{-s} & \texttt{symbolic link}, 不加该参数为 \texttt{hard link}\\
+
+    \texttt{-f} & 目标文件存在时,就主动将目标文件删除后再创建\\
+\hline
+\end{longtable}}
+
+\par
+\textbf{3. \texttt{连接数量}}:新建一个目录,目录本身连接数为2 (其本身和 \verb"."), 该目录的上层目录连接数增加1 (该目录带来的 \verb"..") .
+
+\subsection{磁盘操作}
+\subsubsection{格式化}
+\par
+\textbf{1. \texttt{fdisk}}:分区.
+{\kaishu
+\begin{longtable}{c@{: }p{0.8\columnwidth}}\hline\hline
+
+    \textbf{用法} & \verb"fdisk [-l] 设备名称"
+    \\
+
+    \texttt{-l}  & 输出后面接的设备的分区内容,未加设备名称则列出整个系统的设备  \\
+
+    \multicolumn{2}{p{\columnwidth}}{不加 \texttt{-l} 参数,则对设备进行分区,具体操作会有提示.操作完成以后,使用 \textbf{\texttt{partprobe}} 命令可以强制内核重新找一次分区表,从而不需要重启.} \\
+
+    \hline
+\end{longtable}}
+限制：无法处理大于2TB以上的磁盘分区.
+
+\textbf{2. \texttt{mkfs}}:格式化.
+{\kaishu
+\begin{longtable}{c@{: }p{0.8\columnwidth}}\hline\hline
+
+    \textbf{用法} & \verb"mkfs [-t 文件系统格式] 设备文件名"
+    \\
+
+    \texttt{-k}  & 可接的文件系统格式,例如, ext3, ext2, vfat 等(系统支持才生效)  \\
+
+    \hline
+\end{longtable}}
+
+\textbf{3. \texttt{mke2fs}}:根据指定的详细信息格式化.
+
+\textbf{4. \texttt{parted}}:大硬盘分区.
+{\kaishu
+\begin{longtable}{c@{: }p{0.8\columnwidth}}\hline\hline
+
+    \textbf{用法} & \verb"parted [设备] [命令 [参数]]"
+    \\
+
+    范例  & ``\texttt{parted /dev/hdc mkpart logical ext3 15GB 16GB}" \\
+
+    \hline
+\end{longtable}}
+
+
+\subsubsection{检查}
+\textbf{1. \texttt{fsck}}:格式化.
+{\kaishu
+\begin{longtable}{c@{: }p{0.8\columnwidth}}\hline\hline
+
+    \textbf{用法} & \verb"fsck [-t 文件系统格式] [-ACay] 设备名称"
+    \\
+    \texttt{-t} & 和mkfs用法相同,一般系统通过super block去分辨文件系统,因此通常不需要这个参数 \\
+
+    \texttt{-A}  & 依据 \texttt{/etc/fstab} 的内容, 将需要的设备扫描一次  \\
+
+    \texttt{-a} & 自动修复检查到的所有问题扇区,加上该参数不用一直按 y \\
+
+    \texttt{-y} & 与 \texttt{-a} 类似, 但是某些文件系统仅支持 \texttt{-y} 这个参数 \\
+
+    \texttt{-C} & 可以在检验的过程中使用一个直方图显示进度 \\
+
+    \multicolumn{2}{p{\columnwidth}}{EXT2/EXT3的额外参数功能:} \\
+
+    \texttt{-f} & 强制细化检查 \\
+
+    \texttt{-D} & 针对文件系统进行优化配置 \\
+
+    \hline
+\end{longtable}}
+注意:执行该命令可能会对系统造成危害,被检查的分区必须是卸载状态.
+
+\textbf{2. \texttt{badblocks}}:不常用.
+
+\subsubsection{挂载、卸载}
+挂载须知：
+\begin{itemize}
+    \item 单一文件系统不应该被重复挂载在不同的挂载点(目录)中
+
+    \item 单一目录不应该重复挂载多个文件系统
+
+    \item 作为挂载点的目录理论上应该都是空目录. 若非空,则原有内容会暂时隐藏.
+\end{itemize}
+
+\par
+\textbf{1. \texttt{mount}}:挂载.
+{\kaishu
+\begin{longtable}{l@{: }p{0.8\columnwidth}}\hline\hline
+\textbf{用法} & \texttt{mount -a \newline
+                mount [-l] \newline
+                mount [-t 文件系统类型] [-L Label名] [-o 额外选项] $\backslash$ \newline [-n]  设备名 挂载点} \\
+
+  \texttt{-a} & 依照配置文件 /etc/fstab 的数据将所有未挂载的磁盘都挂载上来 \\
+
+  \texttt{-l} & 单纯输入 mount 会显示目前挂载的信息,加上该参数可增列 Label 名称 \\
+
+  \texttt{-n} & 默认情况下,系统将实际挂载情况写入 /etc/mtab 中,加上该参数可以不写入 \\
+
+  \texttt{-L} & 利用文件系统的卷名(Label)进行挂载 \\
+
+  \texttt{-o} & 后接一些额外参数,比如账号,密码,读写权限等 \\
+
+  \hline
+\end{longtable}
+}
+\begin{itemize}
+ \item 挂载U盘 \\
+ {\kaishu
+    (a). ``\texttt{fdisk -l}": 查看U盘的设备文件名\\
+    (b). 确定挂载点(可以新建挂载目录)\\
+    (c). 挂载 \\
+    (d). \texttt{df}: 查看挂载情况
+ }
+
+ \item 挂载光盘/DVD镜像文件:属于特殊设备loop挂载 \\
+ {\kaishu
+    (a). 确定挂载点(可以新建挂载目录)\\
+    (b). 挂载: ``\texttt{mount -o loop} 光盘文件名 挂载点" 
+ }
+
+ \item 新建大文件制作loop设备文件:感觉上就像多了一个分区. \\
+ {\kaishu
+    (a). 新建大文件: ``\texttt{dd if=/dev/zero of=/home/loopdev bs=1M count=1024}" \\
+    (b). 格式化: ``\texttt{mkfs -t ext4 /home/loopdev}"\\
+    (c). 确定挂载点(可以新建挂载目录)\\
+    (c). 挂载 \\
+    (d). 查看: ``\texttt{df}"
+ }
+\end{itemize}
+
+\par
+\textbf{2. \texttt{unmount}}:卸载.
+{\kaishu
+\begin{longtable}{l@{: }p{0.8\columnwidth}}\hline\hline
+\textbf{用法} & \texttt{umount [-fn] 设备文件名或挂载点} \\
+
+  \texttt{-f} & 强制卸载 \\
+
+  \texttt{-n} & 不更新 /etc/mtab 的情况下卸载 \\
+
+  \hline
+\end{longtable}
+}
+
+\par
+\textbf{3. \texttt{/etc/fstab}}:开机挂载.
+该文件的六个字段的意义是,
+{\kaishu
+\begin{itemize}
+ \item {\songti{磁盘设备文件名或该设备的\texttt{Label}}}\\以设备名时,不能随便更改插槽;以Label 名时,不能随便更改Label 的名称.
+
+ \item {\songti 挂载点}
+
+ \item {\songti 磁盘分区的文件系统}\\
+ 手动挂载时,可以让系统自动检测文件系统类型,但在该文件当中,必须手动写入,包括ext3 等.
+
+  \item {\songti 文件系统参数}\\
+  一般默认使用 defaults即可.
+
+  \item {\songti 能否被 dump 备份命令作用}\\
+  0代表不要做dump备份, 1代表每天进行dump备份, 2代表其他不定日期的dump备份操作.通常不是0就是1.
+
+  \item {\songti 是否以  fsck 检验扇区}\\
+  0表示不要检验,1表示最早检验,2表示需要检验. 通常根目录设置1,其他要检验的目录设置为2.
+\end{itemize}}
+开机挂载设置步骤:\\
+(a). 在 /etc/fstab 中添加开机挂载设备,例如,\\
+\makebox[\textwidth]{``\texttt{/dev/hdc6 /mnt/hdc6 ext3 defaults 1 2}"}\\
+(b). 测试挂载(先查看``\texttt{df}"是否已经挂载,若已挂在先卸载),防止无法开机, \\
+\makebox[\textwidth]{``\texttt{mount -a}"}\\
+(c). 若真无法开机,进入单用户维护模式,此时根目录为 readonly 状态,使用如下命令改为可写,\\
+\makebox[\textwidth]{``\texttt{mount -n -o remount,rw /}"}\\
+
+\subsubsection{修改参数}
+\par
+\textbf{1. \texttt{mknod}}:修改设备的major和minor数值.
+
+\par
+\textbf{2. \texttt{e2label}}:修改设备的Label.
+
+\par
+\textbf{3. \texttt{tune2fs}}:修改设备Label,将ext2转为ext3等.
+
+\par
+\textbf{4. \texttt{hdparm}}:可以针对IDE接口设置高级参数,对IDE, SATA接口硬盘进行测试.
+
+\subsection{内存交换空间(swap)}
+\begin{itemize}
+    \item 使用物理分区\\
+    {\kaishu
+    (a). 分区: \texttt{fdisk} \\
+    (b). 格式化构建: ``\texttt{mkswap 设备文件}名" \\
+    (c). 查看: \texttt{free} \\
+    (d). 加载: ``\texttt{swapon 设备文件名}" \\
+    (e). 确认: ``\texttt{swapon -s}"
+    }
+
+    \item 使用文件\\
+    {\kaishu
+    (a). 新增文件: ``\texttt{dd if=/dev/zero of=/tmp/swap bs=1M count=128}" \\
+    (b). 格式化构建: ``\texttt{mkswap /tmp/swap}名" \\
+    (c). 查看: \texttt{free} \\
+    (d). 加载: ``\texttt{swapon /tmp/swap}" \\
+    (e). 确认: ``\texttt{swapon -s}" \\
+    (f). 关闭: ``\texttt{swapoff /tmp/swap}"
+    }
+\end{itemize}
+限制：最多32个swap, x86\_64 最大为 64GB.

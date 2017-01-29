@@ -1,0 +1,363 @@
+\section{文件与目录管理}
+\subsection{管理}
+\par
+\textbf{1. 特殊目录}:
+\begin{longtable}{l@{ : }p{0.4\columnwidth}}\hline\hline
+
+  \texttt{.} & 当前目录\\
+
+  \texttt{..} & 当前目录的上层目录 \\
+
+  \texttt{-} & 前一个工作目录 \\
+
+  \texttt{$\sim$} & 当前用户的主文件夹 \\
+
+  \texttt{$\sim$yong} & 用户名为 yong 的主文件夹\\
+
+  \hline
+\end{longtable}
+
+\textbf{2. 相关命令}:
+\begin{itemize}
+\item \textbf{\texttt{cd [相对路径或绝对路径(不加该参数同$\sim$)]}}: 切换目录.
+
+\item \textbf{\texttt{pwd [-P]}}: 显示当前路径,参数 \texttt{-P} 表示不显示连接路径而显示完整路径.
+
+\item \textbf{\texttt{mkdir}}: 新建目录
+  \begin{longtable}{l@{: }p{0.7\columnwidth}}\hline\hline
+
+    \textbf{用法} & \verb"mkdir [-mp] 目录名称"
+    \\
+
+    \texttt{-m} & 配置文件夹权限. 直接设置,不需要看默认权限(umask)  \\
+
+     \texttt{-p}  & 递归创建目录 \\
+
+    \hline
+  \end{longtable}
+
+\item \textbf{\texttt{rmdir}}: 删除空目录
+  \begin{longtable}{l@{: }p{0.7\columnwidth}}\hline\hline
+
+    \textbf{用法} & \verb"rmdir [-p] 目录名称"\\
+
+     \texttt{-p}  & 连同上层空目录一并删除 \\
+
+    \hline
+  \end{longtable}
+
+\item \textbf{\texttt{ls}}: 查看文件与目录
+  \begin{longtable}{c@{: }p{0.7\columnwidth}}\hline\hline
+
+    \textbf{用法} & \verb"ls [-aAdfFhilnrRSt] 目录名称" \newline
+                    \verb"ls [--color={never,auto,always}] 目录名称" \newline
+                    \verb"ls [--full-time] 目录名称"
+    \\
+
+    \texttt{-a} & 列出全部文件(含隐藏文件和 \texttt{.} 与 \texttt{..} 两个目录)  \\
+
+     \texttt{-A}  &  和 \texttt{-a} 同, 但无\texttt{.} 与 \texttt{..} 两个目录  \\
+
+    \texttt{-d} & 仅目录本身 \\
+
+    \texttt{-f} & 不进行排序(默认会以文件名排序) \\
+
+    \texttt{-F} & 根据文件,目录信息给予附加数据结构 \\
+
+    \texttt{-h} & 将文件容量以易读方式列出 \\
+
+    \texttt{-i} & 列出 inode 号码 \\
+
+   \texttt{-l} & 列出长数据串, 包含文件属性与权限等数据 \\
+
+    \texttt{-n} & 列出 UID 与 GID \\
+
+    \texttt{-r} & 将排序结果反向输出 \\
+
+    \texttt{-R} & 连同子目录内容一起列出 \\
+
+    \texttt{-S} & 以文件容量大小排序 \\
+
+    \texttt{-t} & 以时间排序 \\
+
+    \texttt{--color=never} & 不依据文件特性给予颜色显示 \\
+
+    \texttt{--color=always} & 显示颜色 \\
+
+    \texttt{--color=auto} & 让系统自行判断 \\
+
+    \texttt{--full-time} & 以完整时间模式输出 \\
+
+    \texttt{--time={atime,ctime}} & 输出 ctime \\
+
+    \hline
+  \end{longtable}
+
+\item \textbf{\texttt{cp}}: 复制
+  \begin{longtable}{c@{: }p{0.7\columnwidth}}\hline\hline
+
+    \textbf{用法} & \verb"cp [-adfilprsu] 源文件 目标文件" \newline
+                    \verb"cp [options] 源文件1 源文件2 ... 目录"
+    \\
+
+    \texttt{-a} & 相当于 \texttt{-pdr}  \\
+
+     \texttt{-d}  &  源文件为连接文件,则复制连接文件属性而非文件本身  \\
+
+    \texttt{-f} & 强制 \\
+
+    \texttt{-i} & 覆盖时先询问 \\
+
+    \texttt{-l} & 进行硬连接,而非复制文件本身 \\
+
+    \texttt{-p} & 连同文件的属性一起复制 \\
+
+    \texttt{-r} & 递归复制 \\
+
+   \texttt{-s} & 复制成 symbolic link \\
+
+    \texttt{-u} & 当源文件更新时才复制 \\
+
+    \hline
+  \end{longtable}
+
+\item \textbf{\texttt{rm}}: 移除文件或目录
+  \begin{longtable}{c@{: }p{0.7\columnwidth}}\hline\hline
+
+    \textbf{用法} & \verb"rm [-fir] 文件或目录"
+    \\
+
+    \texttt{-f} & 强制  \\
+
+     \texttt{-i}  &  互动模式  \\
+
+    \texttt{-r} & 递归删除 \\
+
+    \hline
+  \end{longtable}
+
+\item \textbf{\texttt{mv}}: 移动文件与目录,或更名
+  \begin{longtable}{c@{: }p{0.7\columnwidth}}\hline\hline
+
+    \textbf{用法} & \verb"mv [-fiu] source destination" \newline
+                    \verb"mv [options] source1 source2 ... destination"
+    \\
+
+    \texttt{-f} & 强制  \\
+
+     \texttt{-i}  &  若覆盖先询问  \\
+
+    \texttt{-u} & 若目标已存在,且source更新,才会更新 \\
+
+    \hline
+  \end{longtable}
+
+\item \textbf{\texttt{basename}}: 取得路径的文件名
+
+\item \textbf{\texttt{dirname}}: 获取目录名
+
+\end{itemize}
+
+\subsection{查阅文件内容}
+\begin{itemize}
+
+\item \textbf{\texttt{cat}}
+  \begin{longtable}{c@{: }p{0.5\columnwidth}}\hline\hline
+
+    \textbf{用法} & \verb"cat [-AbEnTv] 文件"
+    \\
+
+    \texttt{-A} & 相当于 \texttt{-vET}  \\
+
+     \texttt{-b}  &  列出行号,空白行不标号  \\
+
+    \texttt{-E} & 将结尾的断行符 \$ 显示出来 \\
+
+     \texttt{-n} & 显示行号,包括空白行  \\
+
+     \texttt{-T}  &  将[Tab]键以 \verb|^I| 显示  \\
+
+    \texttt{-v} & 列出一些看不出来的特殊字符 \\
+
+    \hline
+  \end{longtable}
+
+\item \textbf{\texttt{tac}}:反向显示
+
+\item \textbf{\texttt{nl}}:显示行号(可设定行号格式和左右位置)
+
+\item \textbf{\texttt{more}}:翻页查看
+
+\item \textbf{\texttt{less}}:相比于 more, 功能更丰富
+
+\item \textbf{\texttt{head [-n number] 文件}}: 取出前面几行
+
+\item \textbf{\texttt{tail [-n number] 文件}}: 取出后面几行
+
+\item \textbf{\texttt{od [-t TYPE(a,c,d,f,o,x)] 文件}}: 读取非纯文本文件
+
+\item \textbf{\texttt{touch [-acdmt] 文件}}: 创建空文件或修改文件mtime, atime
+
+\item \textbf{\texttt{file 文件}}: 查看文件类型
+
+\end{itemize}
+
+文件三个时间的意义:
+\begin{itemize}
+    \item \texttt{mtime(modification time)}: 文件内容更改时,会更新该时间.
+
+    \item \texttt{ctime(status time)}:文件的状态改变时(如权限与属性等),会更新该时间.
+
+    \item \texttt{atime(access time)}:文件内容被取用,会更新该时间.
+\end{itemize}
+
+\subsection{默认权限与隐藏权限}
+\subsubsection{umask}
+\texttt{umask} 可指定当前用户在新建文件或目录时权限的默认值.
+\begin{itemize}
+    \item \texttt{umask [分数]}: 设置默认权限.不加参数时,显示当前的分数,分数表示的是,创建文件或目录的默认值需要减掉的权限.
+
+    \item \texttt{umask -S}: 符号显示当前的默认权限.
+\end{itemize}
+
+\subsubsection{隐藏属性}
+\begin{itemize}
+\item \texttt{chattr}:设置文件的隐藏属性
+  \begin{longtable}{c@{: }p{0.9\columnwidth}}\hline\hline
+
+    \textbf{用法} & \verb"chattr [+-=][ASacdistu] 文件或目录"
+    \\
+
+    \texttt{-A} & 访问该文件或目录时, atime 不会被修改  \\
+
+     \texttt{-S}  & 对文件做任何修改都会同步写入磁盘  \\
+
+    \texttt{-a} & \textbf{\kaishu 只能增加数据,不能删除和修改数据. root权限才能设置.} \\
+
+     \texttt{-c} & 自动压缩,读取时自动解压  \\
+
+     \texttt{-d}  &  不会被 dump 备份  \\
+
+    \texttt{-i} & \textbf{\kaishu 不能删除,改名,设置连接文件,写入或添加数据. root 权限才能设置.}  \\
+
+    \texttt{-s}  & 文件删除时,将会完全从硬盘中删除   \\
+
+    \texttt{-u} & 文件删除时,内容还存在于硬盘中,可找回 \\
+
+    \hline
+  \end{longtable}
+
+\item \texttt{lsattr}:显示隐藏属性
+  \begin{longtable}{c@{: }p{0.9\columnwidth}}\hline\hline
+
+    \textbf{用法} & \verb"chattr [-adR] 文件或目录"
+    \\
+
+    \texttt{-a} & 显示隐藏属性  \\
+
+     \texttt{-d}  & 仅列出目录本身的属性  \\
+
+    \texttt{-R} & 连同子目录的数据一并列出 \\
+
+    \hline
+  \end{longtable}
+
+\end{itemize}
+
+\subsubsection{特殊权限}
+\begin{itemize}
+\item \texttt{Set UID}: 数字为4, 表现为 s 这个标志在文件所有者的 x 权限上.\\
+   (a).仅对二进制程序有效\\
+   (b).执行者对该程序具有 x 权限\\
+   (c).本权限仅在执行过程中有效\\
+   (d).执行者将获得该程序所有者的权限
+
+\item \texttt{Set GID}: 数字为2, 表现为 s 这个标志在文件用户组的 x 权限上. 可针对目录设置.\\
+    (a).对二进制程序有效\\
+   (b).执行者对该程序具有 x 权限\\
+   (c).在执行过程中将获得该程序用户组的支持\\
+   对目录设置时:\\
+   (a).用户在此目录下的有效用户组将会变成该目录的用户组\\
+   (b). \textbf{\kaishu 在此目录下,用户创建的文件用户组与该目录用户组相同}
+
+\item \texttt{Sticky Bit}: 数字为1, 只针对目录有效. 用户在此目录下创建的文件,仅自己和root才能删除.
+\end{itemize}
+
+
+\subsection{命令与文件查询}
+\par
+1. 普通查找
+\begin{longtable}{ccp{0.7\columnwidth}}\hline\hline
+
+    \textbf{命令} & \textbf{参数} & \makebox[0.7\columnwidth]{\textbf{意义}}\\
+
+    \texttt{which} & \texttt{-a} & 将所有PATH目录中可找到的命令列出\\
+    
+    \texttt{whereis} & \texttt{-b} & 只找二进制格式文件 \\
+    
+            & \texttt{-m} & 只找在说明文件 manual 路径下的文件\\
+            
+            & \texttt{-s} & 只找source源文件\\
+            
+            & \texttt{-u} & 查找不在上述三个选项中的其他特殊文件\\
+            
+    \texttt{locate} & \texttt{-i} & 忽略大小写差异 \\
+
+            & \texttt{-r} & 后可接正则表达式\\
+   
+    \hline
+\end{longtable}
+
+\texttt{updatedb} 命令依据 \texttt{/etc/updatedb.conf} 的设置查找硬盘内的文件名,并更新 \texttt{/var/lib/mlocate} 内的数据文件. \texttt{locate} 命令依据 \texttt{/var/lib/mlocate} 内的数据库进行关键字查找.
+
+\par
+2. \texttt{find}
+\begin{longtable}{l@{ : }p{0.8\columnwidth}}\hline\hline
+\multicolumn{2}{l}{  \textbf{使用}: \texttt{find [PATH] [option] [action]} }\\
+\multicolumn{2}{l}{\bfseries 参数:}\\
+
+\multicolumn{2}{l}{\kaishu 1.与时间有关的参数: \texttt{-atime, -ctime, -mtime}, 以其中一个为例}\\
+  \texttt{-mtime n} & \texttt{n} 天之前那天修改过的文件 \\
+
+  \texttt{-mtime +n} & 改动时间超过 \texttt{n} 天(不含第 \texttt{n} 天)的文件 \\
+
+  \texttt{-mtime -n} & \texttt{n} 天之内(含第 \texttt{n} 天)改动过的文件 \\
+
+  \texttt{-newer file} & 比 \texttt{file} 还要新的文件,其中 \texttt{file} 为已存在的文件 \\
+  
+  \multicolumn{2}{l}{\kaishu 2.与用户或用户组有关的参数}\\
+  
+  \texttt{-uid n} &  UID \\
+
+  \texttt{-gid n} & GID \\
+
+  \texttt{-user name} & 用户账号 \\
+
+  \texttt{-group name} & 用户组名 \\
+  
+  \texttt{-nouser} & 文件所有者不在 \texttt{/etc/passwd} 中 \\
+
+  \texttt{-nogroup} & 文件所属组不在 \texttt{/etc/group} 中 \\
+  
+  \multicolumn{2}{l}{\kaishu 2.与权限有关的参数}\\
+
+  \texttt{-name filename} &  文件名,可用通配符 \\
+
+  \texttt{-size [+-]SIZE} & 比 SIZE 大或小的文件 \\
+
+  \texttt{-type TYPE} & \texttt{f}:一般正规文件, \texttt{b,c}:设备文件, \texttt{d}: 目录, \texttt{l}: 连接文件, \texttt{s: socket, p: FIFO} 等 \\
+
+  \texttt{-perm mode} & 权限等于 \texttt{mode} 的文件 \\
+
+  \texttt{-perm -mode} & 权限包含了 \texttt{mode} 的文件  \\
+
+  \texttt{-perm +mode} & 权限包含了 \texttt{mode} 任意部分的文件  \\
+  
+  \multicolumn{2}{l}{\kaishu 3.其他}\\
+  
+  \texttt{-exec command} & 接其他命令来处理找到的结果. 不支持命令别名. \\
+  
+  \texttt{-print} & 将结果输出到屏幕,这是默认操作 \\
+  
+  \hline
+\end{longtable}

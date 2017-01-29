@@ -1,0 +1,125 @@
+\section{例行性工作crontab}
+\subsection{单一工作调度}
+\subsubsection{atd服务}
+\begin{itemize}
+    \item 启动 \\
+    \verb|/etc/init.d/atd restart| \\
+    \verb|chkconfig atd on| $\Longleftarrow$ 开机启动
+
+    \item \texttt{at} 运行方式\\
+    1). /etc/at.allow 文件若存在,则只有写在该文件中\footnote[1]{一个账号写一行}的用户才能使用 \texttt{at};\\
+    2). 若上述文件不存在,则寻找 /etc/at.deny, 若该文件存在, 则写在该文件中的用户不能使用 \texttt{at}, 其余用户可以使用;\\
+    3). 若上述两个文件都不存在,则只有 root 可以使用.
+\end{itemize}
+
+\subsubsection{相关命令}
+\par
+1. \texttt{at}: 单一调度.
+\begin{longtable}{l@{ : }p{0.65\columnwidth}}\hline\hline
+
+    \textbf{用法} & \verb"at [-mldv] TIME" \newline
+                    \verb"at -c 工作号码"  \\
+
+    \texttt{-m} & 工作完成以后,即使没有输出信息,以 email 通知用户该工作已完成\\
+
+    \texttt{-l} & 相当于 \texttt{atq}, 列出目前系统上面的所有该用户的 \texttt{at} 调度\\
+
+    \texttt{-d} & 相当于 \texttt{atrm}, 取消一个在 \texttt{at} 调度中的工作 \\
+
+    \texttt{-v} & 使用较明显的时间格式列出调度任务列表\\
+
+    \texttt{-c} & 列出后面接的该项工作的实际命令内容 \\
+
+    \multicolumn{2}{l}{TIME 格式:}\\
+
+    \texttt{HH:MM} & 今天的 HH:MM 时刻进行, 若超过了则明天进行 \\
+
+    \texttt{HH:MM YYYY-MM-DD} & 指定详细的执行时间 \\
+
+    \multicolumn{2}{l}{\texttt{HH:MM[am|pm] [Month] [Date]}:  指定在某月某日详细时间执行} \\
+
+    \multicolumn{2}{p{\columnwidth}}{\texttt{HH:MM[am|pm] + number [minutes|hours|days|weeks]}: 在指定时间点之后再加指定时间数才进行. 常用例如 ``\texttt{now + 5 minutes}" .} \\
+
+    \hline
+\end{longtable}
+
+\par
+2. \texttt{atq}: 查询主机上所有的 \texttt{at} 工作调度.
+
+\par
+3. \texttt{atrm [jobnumber]}: 取消指定工作号的调度.
+
+\par
+4. \texttt{batch}: 系统空闲时才进行后台任务. 本质是利用 \texttt{at} 来调度, 用法同 \texttt{at}.
+
+\subsection{循环调度}
+\par
+1. \texttt{crontab} 的设置限制文件是 /etc/cron.allow 和 /etc/cron.deny, 用法同 \texttt{at}.
+\begin{longtable}{l@{ : }p{0.65\columnwidth}}\hline\hline
+
+    \textbf{用法} & \verb"crontab [-u username] [-l|-e|-r]"  \\
+
+    \texttt{-u} & root 帮助其他用户管理 \texttt{crontab} 调度\\
+
+    \texttt{-e} & 编辑 \texttt{crontab} 的工作内容\\
+
+    \texttt{-l} & 查阅 \texttt{crontab} 的工作内容\\
+
+    \texttt{-r} & 删除所有 \texttt{crontab} 的工作内容, 单项删除用 \texttt{-e} 编辑\\
+
+
+    \hline
+\end{longtable}
+编辑界面的7个字段意义如下\footnote[1]{需要注意区域时间的设置.},
+\begin{longtable}{c|c|c|c|c|c|c}\hline
+
+    代表意义 & 分钟 & 小时 & 日期 & 月份 & 周 & 命令 \\\hline
+    
+    数字范围 & 0$\sim$59 & 0$\sim$23 & 1$\sim$31 & 1$\sim$12 & 0$\sim$7 & 命令内容 \\
+
+    \hline
+\end{longtable}
+辅助字符代表意义如下,
+\begin{longtable}{c@{ : }p{0.8\columnwidth}}\hline
+
+    \verb|*| & 任何时刻都接受\\
+    
+    \verb|,| & 分隔时段. 例如,第1个字段 ``1,3" 表示第1分钟和第3分钟.\\
+    
+    \verb|-| & 代表一段时间范围内.例如,第1个字段 ``\texttt{1-3}" 表示第1 分钟和第3分钟.\\
+    
+    \verb|/n| & 每隔 n 个单位时间的意思. 例如,第1个字段 ``\texttt{*/5}" 表示每隔5分钟.\\
+
+    \hline
+\end{longtable}
+
+\par
+2. 上述命令针对用户,而系统的工作内容实际上在 /etc/crontab 中, /usr/bin/crontab 每分钟读取该文件与 /etc/spool/cron 的数据内容.
+
+\par
+3. 注意事项: 大量使用造成资源分配不均; 取消不必要输出; 注意检查 /var/log/cron\footnote[2]{Debian中, /etc/rsyslog.conf 文件中,默认注释了 cron 的日志输出, 编辑该文件取消注释, 重启 rsyslog 服务, 即可启用 cron 日志.}; 周与日、月不可并存.
+
+\subsection{唤醒停机期间的工作任务}
+\texttt{anacron} 可以开机运行或写入 \texttt{crontab} 的调度中,从而分析系统未进行的 crontab 工作.
+\begin{longtable}{l@{ : }p{0.65\columnwidth}}\hline\hline
+
+    \textbf{用法} & \verb"anacrontab [-sfn] [job].." \newline
+                    \verb"anacrontab -u [job].."\\
+
+    \texttt{-s} & 连续执行各项工作,依据时间记录文件判断是否执行\\
+
+    \texttt{-f} & 强制执行,而不判断时间记录文件的时间戳\\
+
+    \texttt{-n} & 立刻进行未进行的任务,而不延迟 \\
+
+    \texttt{-u} & 仅更新时间记录文件的时间戳,不进行任何工作\\
+
+    \texttt{job} & 由 /etc/anacrontab 定义的各项工作名称\\
+
+    \hline
+\end{longtable}
+
+\par
+确定 \texttt{anacron} 是否会开机启动,执行以下命令:\\
+\parbox{\textwidth}{\qquad\qquad \texttt{chkconfig --list anacron}} \\
+注意第3和第5项是否开启.

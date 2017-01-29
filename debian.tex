@@ -1,0 +1,37 @@
+\section{Debian系统}
+\par
+1. 修改home下的中文目录为英文目录
+\begin{verbatim}
+  export LANG=en_US
+  xdg-user-dirs-gtk-update
+  export LANG=zh_CN.UTF-8
+\end{verbatim}
+
+\par
+2. gnome 最大化，最小化按钮.
+\begin{verbatim}
+  安装 dconf-tools
+  Alt+F2 键入 dconf-editor
+  org.gnome.shell.overrides.button-layout 设置成
+  :minimize,maximize,close
+\end{verbatim}
+
+\par
+3. 终端乱码.
+\begin{verbatim}
+  /etc/default/locale
+  LANG="en_US.UTF-8"
+  LANGUAGE="en_US:en"
+  终端输入：
+  locale-gen -en_US:en
+  重启或注销即可
+\end{verbatim}
+
+\par
+4. 重启X window.
+\begin{verbatim}
+  打开终端. 切换为 root 输入
+  service gdm3 restart
+  Ubuntu 输入
+  service lightdm restart
+\end{verbatim}

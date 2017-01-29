@@ -1,0 +1,199 @@
+\section{压缩与打包}
+\subsection{压缩}
+\par
+\textbf{1. \texttt{gzip,zcat}}
+\begin{longtable}{c@{: }p{0.8\columnwidth}}\hline\hline
+
+    \textbf{用法} & \verb"gzip [-cdktv#] 文件名" \newline
+                    \verb"zcat 文件名.gz" \
+    \\
+
+    \texttt{-c}  & 将压缩数据输出到屏幕上,可通过重定向处理 \\
+
+    \texttt{-d} & 解压缩的参数 \\
+
+    \texttt{-k} & 保留原文件 \\
+
+    \texttt{-t} & 检验文件的一致性,看文件有无错误 \\
+
+    \texttt{-v} & 显示出原文件/压缩文件的压缩比等信息\\
+
+    \verb"-#" & \verb"#"是某个数字,表示压缩等级, \texttt{-1} 最快(压缩比最低), \texttt{-9} 最慢(压缩比最高),默认是 \texttt{-6}\\
+
+    \hline
+\end{longtable}
+默认会保存成 \texttt{.gz} 的文件,并删除原文件.
+
+\par
+\textbf{2. \texttt{bzip2,bzcat}}
+\begin{longtable}{c@{: }p{0.7\columnwidth}}\hline\hline
+
+    \textbf{用法} & \verb"bzip2 [-cdkzv#] 文件名" \newline
+                    \verb"bzcat 文件名.bz2" \
+    \\
+
+    \texttt{-c,-d,-k,-v},\verb"-#"  & 与 \texttt{gzip} 意义相同 \\
+
+    \texttt{-z} & 压缩的参数,自动生成扩展名 \texttt{.bz2} \\
+
+    \hline
+\end{longtable}
+
+\par
+\textbf{3. \texttt{tar}}
+\begin{longtable}{c@{: }p{0.7\columnwidth}}\hline\hline
+
+    \textbf{用法} & \verb"tar [-j|-z][cv] [-f defineName] targetFilename ..." \newline
+                    \verb"tar [-j|-z][tv] [-f 文件名]" \newline
+                    \verb"tar [-j|-z][xv] [-f 文件名] [-C 路径]"
+    \\
+
+    \texttt{-c} & 新建打包 \\
+
+    \texttt{-t} & 查看打包文件的内容 \\
+
+    \texttt{-x} & 解包\\
+
+    \texttt{-j} & 通过bzip2的支持进行压缩/解压缩,此时文件名最好是 \texttt{*.tar.bz2} \\
+
+    \texttt{-z} & 通过gzip的支持进行压缩/解压缩,此时文件名最好是 \texttt{*.tar.gz} \\
+
+    \texttt{-v} & 在压缩/解压缩过程中,将正在处理的文件名显示出来\\
+
+    \texttt{-f} & 后接文件名,建议单独一个参数,第一个文件名是要保持的文件名,之后%
+    是要打包文件的文件名 \\
+
+    \texttt{-C} & 后接路径,解压到特定目录 \\
+
+    \texttt{-P} & 保留打包文件的原本权限与属性,常用于备份重要的配置文件 \\
+
+    \texttt{-p} & 保留绝对路径,允许备份数据中含有根目录(解压时注意安全) \\
+\end{longtable}
+\begin{longtable}{l@{: }p{0.5\columnwidth}}
+\texttt{--exclude=otherFile} & 不打包otherFile文件 \\
+\texttt{--newer-mtime="date"} & 仅备份比这个时刻还新的文件,例如, ``\texttt{--newer-mtime="2014/10/01"}"  \\\hline
+\end{longtable}
+通常只需记住它的常用用法即可,
+\begin{longtable}{c@{: }p{0.7\columnwidth}}\hline\hline
+    \textbf{压缩} & \texttt{tar -jcv -f filename.tar.bz2} 被压缩的文件或目录 \newline
+    \texttt{tar -zcv -f filename.tar.gz} 被压缩的文件或目录
+     \\
+
+    \textbf{查询} & \texttt{tar -jtv -f filename.tar.bz2} \newline
+    \texttt{tar -ztv -f filename.tar.gz}
+     \\
+
+    \textbf{解压缩} & \texttt{tar -jxv -f filename.tar.bz2 -C} 解压的路径 \newline
+    \texttt{tar -zxv -f filename.tar.gz -C} 解压的路径
+     \\\hline
+\end{longtable}
+
+
+\subsection{备份}
+\subsubsection{dump}
+用来备份单一文件系统,可以指定备份等级对文件系统进行差异备份,从而节省备份空间. 但是备份数据是目录而非单一文件系统时,有如下限制:
+\begin{itemize}
+    \item 所有备份数据都要在该目录下
+    \item 仅支持完整备份,即等级0
+    \item 不支持 \texttt{-u} 参数
+\end{itemize}
+\begin{longtable}{l@{ : }p{0.7\columnwidth}}\hline\hline
+
+    \textbf{用法} & \verb"dump [-Suvj] [-level] [-f 备份文件] 待备份数据" \newline
+                    \verb"dump -W"
+    \\
+
+    \texttt{-s} & 列出后面的备份数据需要多少空间才能备份完毕 \\
+
+    \texttt{-u} & 将这次\texttt{dump} 时间记录到 \texttt{/etc/dumpdates} 文件中 \\
+
+    \texttt{-v} & 将\texttt{dump}  的文件过程显示出来\\
+
+    \texttt{-j} & 加入 \texttt{bzip2} 支持,将数据进行压缩,默认压缩等级2\\
+
+    \texttt{-level} & 备份等级, \texttt{-0$\sim$-9}\\
+
+    \texttt{-f} & 和 \texttt{tar} 用法类似\\
+
+    \texttt{-W} & 列出在 \texttt{/etc/fstab} 里面的具有 \texttt{dump} 设置的分区是否有备份过\\
+
+    \hline
+\end{longtable}
+
+\subsubsection{restore}
+用于恢复 \texttt{dump} 备份的文件.
+\begin{longtable}{l@{ : }p{0.7\columnwidth}}\hline\hline
+
+    \textbf{用法} & \verb"restore -t [-f dumpFile] [-h]" \newline
+                    \verb"restore -C [-f dumpFile] [-D 挂载点]" \newline
+                    \verb"restore -i [-f dumpFile]" \newline
+                    \verb"restore -r [-f dumpFile]"
+    \\
+
+    \texttt{-t} & 查看备份文件中的数据,类似于 \texttt{tar -t}\\
+
+    \texttt{-C} & 比较 \texttt{dump} 与实际文件,列出 \texttt{dump} 有记录且与目前文件系统不同的文件\\
+
+    \texttt{-i} & 互动模式,可以仅还原部分文件\\
+
+    \texttt{-r} & 将整个文件系统还原\\
+
+    \texttt{-h} & 查看完整备份数据中 \texttt{inode} 和文件系统 \texttt{label} 等信息\\
+
+    \texttt{-f} & 后接要处理的文件\\
+
+    \texttt{-D} & 查出后面挂载点与 \texttt{dump} 内有不同的文件\\
+
+    \hline
+\end{longtable}
+
+\subsubsection{dd}
+可以读取磁盘设备的内容(几乎是直接读取扇区),然后将整个设备备份成一个文件.
+\begin{longtable}{l@{ : }p{0.8\columnwidth}}\hline\hline
+
+    \textbf{用法} & \verb"dd if=fileFrom of=outputFile bs=blockSize count=blockCount"
+    \\
+
+    \texttt{if} & 输入位置,可以是文件或设备\\
+
+    \texttt{of} & 输出位置,也可是文件或设备\\
+
+    \texttt{bs} & \texttt{block} 大小,未指定默认是512byte\\
+
+    \texttt{count} & \texttt{block} 数量,仅读取指定的区块数\\
+
+    \multicolumn{2}{l}{ \textbf{示例}: \texttt{dd if=/dev/hdc1 of=/tmp/whole.disk}}\\
+
+    \hline
+\end{longtable}
+
+\subsubsection{cpio}
+可以备份包括设备文件在内的任何东西,但是要配合其他命令使用.
+\begin{longtable}{l@{ : }p{0.8\columnwidth}}\hline\hline
+
+    \textbf{用法} & \verb"cpio -ovcB > [file|device]"  \newline
+                    \verb"cpio -ivcdu < [file|device]" \newline
+                    \verb"cpio -ivct < [file|device]"
+    \\
+
+    \texttt{-o} & 将数据复制到文件或设备\\
+
+    \texttt{-B} & 将默认的block由512byte增加到5120
+    byte\\
+
+    \texttt{-i} & 从文件或设备复制数据到系统\\
+
+    \texttt{-d} & 自动新建目录\\
+
+    \texttt{-u} & 自动将较新的文件覆盖较旧的文件\\
+
+    \texttt{-t} & 查看以 cpio 新建的文件或设备内容\\
+
+    \texttt{-v} & 让存储过程中文件名可以在屏幕上显示\\
+
+    \texttt{-c} & 一种较新的 portable format 方式存储\\
+
+    \multicolumn{2}{l}{ \textbf{示例}: \texttt{find /boot | cpio -ocvB > /temp/boot.cpio}}\\
+
+    \hline
+\end{longtable} 

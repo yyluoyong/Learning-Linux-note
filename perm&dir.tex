@@ -1,0 +1,123 @@
+\section{文件权限与目录配置}
+
+\subsection{属性与权限}
+\begin{itemize}
+    \item \textbf{\texttt{chgrp}}: 改变文件所属用户组 \\
+    \mbox{\qquad \texttt{chgrp [-R] dirname/filename}} \\
+    参数 \texttt{-R} 表示进行递归修改.
+    
+    \item \textbf{\texttt{chown}}： 改变文件所有者\\
+    \mbox{\qquad \texttt{chown [-R] 账号名称 dirname/filename}} \\
+    \mbox{\qquad \texttt{chown [-R] 账号名称:组名 dirname/filename}} \\
+    参数 \texttt{-R} 表示进行递归修改.
+    
+    \item \textbf{\texttt{chmod}}： 改变文件的权限\\
+    \mbox{\qquad \texttt{chmod [-R] xyz dirname/filename}} \\
+    或符号用法
+    \begin{longtable}{c|c|c|c|c}\hline\hline
+                                        & \texttt{u} &  &  &  \\
+                                        & \texttt{g} & \raisebox{2.3ex}[0pt]{\texttt{+}} &  \raisebox{2.3ex}[0pt]{\texttt{r}} &  \\
+\raisebox{2.3ex}[0pt]{\texttt{chmode}}  & \texttt{o} & \raisebox{2.3ex}[0pt]{\texttt{-}} &  \raisebox{2.3ex}[0pt]{\texttt{x}} & \raisebox{2.3ex}[0pt]{文件或目录} \\
+
+                                        & \texttt{a} & \raisebox{2.3ex}[0pt]{\texttt{=}} &  \raisebox{2.3ex}[0pt]{\texttt{x}} & \\
+    \hline
+    \end{longtable}
+\end{itemize} 
+
+\subsection{目录配置}
+1. FHS 标准
+\begin{longtable}{c|p{0.8\columnwidth}}\hline
+\textbf{目录} & \makebox[0.8\columnwidth]{\textbf{应放置的文件内容}}\\\hline
+\endhead
+
+\texttt{/bin} & 系统的执行文件. 单用户维护模式也可操作.\\
+
+\texttt{/boot} & 开机会使用到的文件,包括 Linux 内核文件以及开机菜单与开机配置文件等.\\
+
+\texttt{/dev} & 任何设备与接口设备都以文件形式存在于这个目录中. 比较重要的文件有 \texttt{/dev/null, /dev/zero, /dev/tty, /dev/hd*} 等.\\
+
+\texttt{/etc} & 系统的主要配置文件, 例如系统账号密码文件、各种服务的起始文件等.\\
+
+\texttt{/home} & 默认的用户主文件夹\\
+
+\texttt{/lib} & 开机用到的函数库,以及在 \texttt{/bin} 或 \texttt{/sbin} 下命令会调用的函数库.\\
+
+\texttt{/media} & 放置的是可删除设备,包括光盘、DVD等都暂挂在此. 常见的如 \texttt{/media/cdrom} 等.\\
+
+\texttt{/mnt} & 暂时挂载某些额外的设备,例如 U 盘. 常见如 \texttt{/mnt/flash} 等.\\
+
+\texttt{/opt} & 第三方软件放置的目录, 如 KDE 等.\\
+
+\texttt{/root} & 系统管理员的主文件夹.\\
+
+\texttt{/sbin} & 包括开机、修复、还原系统所需的命令. 某些服务器软件放置到 \texttt{/usr/sbin} 中, 本机安装的软件所产生的系统执行文件放置到 \texttt{/usr/local/sbin} 中.\\
+
+\texttt{/srv} & 一些网络服务所需数据目录.\\
+\texttt{
+/tmp} & 一般用户正在执行的程序的临时目录.\\
+
+\hline
+\end{longtable}
+
+\par
+2. 其余重要目录.
+\begin{longtable}{c|p{0.8\columnwidth}}\hline
+\textbf{目录} & \makebox[0.8\columnwidth]{\textbf{应放置的文件内容}}\\\hline
+\endhead
+
+\texttt{/lost+found} & 文件系统发生错误时,会将丢失的片段放置到该目录.\\
+
+\texttt{/proc} & 虚拟文件系统,该目录数据都在内存中.较重要的文件如 \texttt{/proc/cpuinfo, /proc/dma} 等\\
+
+\texttt{/sys} & 虚拟文件系统,记录与内核相关的信息,包括已加载的内核模块和检测到的硬件设备信息等. 不占硬盘容量.\\
+
+\hline
+\end{longtable}
+
+\par
+3. \texttt{/usr} 的内容与意义.
+\begin{longtable}{c|p{0.8\columnwidth}}\hline
+\textbf{目录} & \makebox[0.8\columnwidth]{\textbf{应放置的文件内容}}\\\hline
+\endhead
+
+\texttt{/usr/X11R6/} & X Window 系统重要数据放置目录. \\
+
+\texttt{/usr/bin/} & 绝大部分用户可使用命令. \\
+
+\texttt{/usr/include/} & 头文件与包含文件. \\
+
+\texttt{/usr/lib/} & 包含应用软件的函数库、目标文件,以及不被一般用户惯用的执行文件或脚本.\\
+
+\texttt{/usr/local/} & 系统管理员在本机安装自己下载的软件.\\
+
+\texttt{/usr/sbin/} & 非系统正常运行所需要的系统命令,如某些网络服务器软件的服务命令.\\
+
+\texttt{/usr/share/} & 共享文件. \\
+
+\texttt{/usr/src/} & 一般源码. 内核源码建议放置在 /usr/src/linx/ 目录下.\\
+
+\hline
+\end{longtable}
+
+\par
+4. \texttt{/var} 的内容与意义.
+\begin{longtable}{c|p{0.8\columnwidth}}\hline
+\textbf{目录}\quad & \makebox[0.8\columnwidth]{\textbf{应放置的文件内容}}\\\hline
+\endhead
+
+\texttt{/var/cache/} &  应用程序的缓存文件. \\
+
+\texttt{/var/lib/} &  程序本身执行的过程中,需要使用到的数据文件.例如, MySQL 的数据库放置到 \texttt{/var/lib/mysql/} 中.\\
+
+\texttt{/var/lock/} &  将设备上锁,以确保文件只被单一软件使用. \\
+
+\texttt{/var/log/} &  登录文件.\\
+
+\texttt{/var/mail/} &  个人电子邮箱.\\
+
+\texttt{/var/run/} &  某些程序启动后,会将他们的PID放置在该目录.\\
+
+\texttt{/var/spool/} &  通常放置一些队列数据. \\
+
+\hline
+\end{longtable}

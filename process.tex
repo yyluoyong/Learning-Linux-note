@@ -1,0 +1,298 @@
+\section{程序管理}
+\subsection{工作管理}
+\begin{itemize}
+\item \textbf{\texttt{\&}}：加在命令后表示直接将命令放入后台执行.
+
+\item \textbf{\texttt{[Ctrl]+z}}: 将当前的工作放入后台暂停.
+
+\item \textbf{\texttt{jobs}}: 查看当前后台工作状态.
+
+\item \textbf{\texttt{fg \%jobnumber}}：将后台工作放到前台来处理.
+
+\item \textbf{\texttt{bg \%jobnumber}}: 让后台工作的状态变成运行中.
+
+\item \textbf{\texttt{kill}}: 管理后台的工作. 
+    \begin{itemize}
+        \item[$\sim$] \texttt{kill -signal \%jobnumber} \\
+        \texttt{-1}: 重新读取一次参数配置文件.\\
+        \texttt{-2}: 与键盘 [Ctrl]+c 操作相同. \\
+        \texttt{-9}: 立刻强制删除一个工作. \\
+        \texttt{-15}: 以正常的程序方式终止一项工作.
+        
+        \item[$\sim$] \texttt{kill -l}: 查看有哪些signal可以使用. 
+    \end{itemize}
+    
+\item \textbf{\texttt{nohup}}: 脱机管理. 需要注意的是不支持 bash 内置命令.
+    \begin{itemize}
+        \item[$\sim$] \texttt{nohup [命令与参数]}: 终端前台.
+
+        \item[$\sim$] \texttt{nohup [命令与参数] \&}： 终端后台.
+    \end{itemize}
+\end{itemize}
+
+
+\subsection{进程管理}
+\par
+1. \textbf{\texttt{ps}}: 查看进程运行情况.
+\begin{longtable}{c@{ : }p{0.7\columnwidth}}\hline\hline
+
+    \textbf{用法} & \verb"ps aux" \quad$\Longleftarrow$ \texttt{查看系统所有的进程的状态}\newline
+                    \verb"ps -lA" \newline
+                    \verb"ps axjf" \quad$\Longleftarrow$ \texttt{连同部分进程树状态}\\
+
+    \texttt{-A} & 所有进程状态均显示出来, 同 \texttt{-e}\\
+
+    \texttt{-a} & 与 terminal 无关的所有进程\\
+
+    \texttt{-u} & 有效用户相关的进程\\
+
+    \texttt{x} & 列出较完整的信息, 通常与 \texttt{a} 这个参数一起用\\
+
+    \texttt{l} & 较长、较详细地将该 PID 的信息列出\\
+
+    \texttt{j} & 工作的格式\\
+
+    \texttt{-f} & 做一个更为完整的输出\\
+
+    \hline
+\end{longtable}
+
+\par
+2. \textbf{\texttt{top}}: 动态查看进程的变化.
+\begin{longtable}{c@{ : }p{0.7\columnwidth}}\hline\hline
+
+    \textbf{用法} & \verb"top [-d 数字]"\newline
+                    \verb"top [-bnp]" \\
+
+    \texttt{-d} & 后面接秒数,默认为5秒,表示整个界面更新的间隔.\\
+
+    \texttt{-b} & 以批次的方式执行,通常搭配数据流将结果输出到文件.\\
+
+    \texttt{-n} & 与 \texttt{-b} 搭配,表示需要进行几次 top 的输出结果.\\
+
+    \texttt{-p} & 指定某些 PID 来监控. \\
+
+    \multicolumn{2}{l}{\textbf{执行中的参数}:}\\
+
+    ? & 显示可以输入的按键命令. \\
+
+    P & 以 CPU 的使用资源排序. \\
+
+    M & 以内存的使用资源排序. \\
+
+    N & 以 PID 排序. \\
+
+    T & 由该进程使用的CPU时间累积排序. \\
+
+    k & 给予某个PID一个信号. \\
+
+    r & 给予某个PID重新制定一个nice值. \\
+
+    q & 离开top软件的按键.\\
+
+    \hline
+\end{longtable}
+
+\par
+3. \textbf{\texttt{pstree}}: 进程树.
+\begin{longtable}{c@{ : }p{0.7\columnwidth}}\hline\hline
+
+    \textbf{用法} & \verb"pstree [-A|U] [up]"\\
+
+    \texttt{-A} & 各进程树之间以 ASCII 字符来连接.\\
+
+    \texttt{-U} & 各进程树之间以 utf8 字符来连接.\\
+
+    \texttt{-p} & 同时列出每个进程的PID.\\
+
+    \texttt{-u} & 同时列出每个进程的所属账号名称. \\
+
+    \hline
+\end{longtable}
+
+4. \textbf{\texttt{kill}}: 管理进程.
+\begin{itemize}
+\item \texttt{kill -signal PID}: 可用信号如下,
+\begin{longtable}{c|c|p{0.7\columnwidth}}\hline
+
+    代号 & 名称 & 内容 \\\hline
+
+    1 & SIGHUP & 重新读取一次参数配置文件.\\
+
+    2 & SIGINT & 与键盘 [Ctrl]+c 操作相同. \\
+
+    9 & SIGKILL & 立刻强制删除一个工作.\\
+
+    15 & SIGTERM & 以正常的程序方式终止一项工作.\\
+
+    17 & SIGSTOP & 与键盘 [Ctrl]+z 来暂停进程操作相同.\\
+
+    \hline
+\end{longtable}
+
+\end{itemize}
+
+\par
+5. \textbf{\texttt{killall}}: 通过命令管理进程.
+\begin{longtable}{c@{ : }p{0.7\columnwidth}}\hline\hline
+
+    \textbf{用法} & \verb"killall -signal [-iIe] 命令名称"\\
+
+    \texttt{-i} & 交互操作.\\
+
+    \texttt{-I} & 忽略大小写.\\
+
+    \texttt{-e} & exact, 完整命令相同.\\
+
+    \hline
+\end{longtable}
+
+\par
+6. \textbf{\texttt{nice}}: 新执行的命令给予新的 nice 值.
+\begin{longtable}{c@{ : }p{0.7\columnwidth}}\hline\hline
+
+    \textbf{用法} & \verb"nice [-n 数字] 命令名称"\\
+
+    \texttt{-n} & 后接数字, 范围 \texttt{-20$\sim$19}.\\
+
+    \hline
+\end{longtable}
+
+\par
+7. \textbf{\texttt{renice}}: 重新调整已存在进程的 nice 值, ``\verb"renice [数字] PID"".
+
+
+\subsection{系统资源的查看}
+\par
+1. \textbf{\texttt{free}}: 查看内存使用情况.
+\begin{longtable}{c@{ : }p{0.7\columnwidth}}\hline\hline
+
+    \textbf{用法} & \verb"free [-b|-k|-m|-g] [-t]"\\
+
+    \texttt{-b,-k,-m,-g} & 单位. \\
+
+    \texttt{-t} & 在输出结果中显示物理内存与swap总量.\\
+
+    \hline
+\end{longtable}
+
+\par
+2. \textbf{\texttt{uname}}: 查看系统内核相关信息.
+\begin{longtable}{c@{ : }p{0.7\columnwidth}}\hline\hline
+
+    \textbf{用法} & \verb"uname [-asrmpi]"\\
+
+    \texttt{-a} & 所有系统的相关信息. \\
+
+    \texttt{-s} & 系统内核名称.\\
+    
+    \texttt{-r} & 内核的版本. \\
+    
+    \texttt{-m} & 本系统的硬件名称, 如x86\_64. \\
+    
+    \texttt{-p} & CPU的类型. \\
+    
+    \texttt{-i} & 硬件的平台. \\
+
+    \hline
+\end{longtable}
+
+\par
+3. \textbf{\texttt{netstat}}: 跟踪网络.
+\begin{longtable}{c@{ : }p{0.7\columnwidth}}\hline\hline
+
+    \textbf{用法} & \verb"netstat -[atunlp]"\\
+
+    \texttt{-a} & 将当前系统上的所有连接、监听、Socket数据都列出. \\
+
+    \texttt{-t} & 列出 tcp 网络数据包的数据.\\
+
+    \texttt{-u} & 列出 udp 网络数据包的数据. \\
+
+    \texttt{-n} & 不列出进程的服务名称,以端口号来显示. \\
+
+    \texttt{-l} & 列出当前正在网络监听的服务. \\
+
+    \texttt{-p} & 列出该网络服务的PID. \\
+
+    \hline
+\end{longtable}
+
+\par
+4. \textbf{\texttt{dmesg}}: 分析内核产生的信息.
+
+\par
+5. \textbf{\texttt{vmstat}}: 检测系统资源变化.
+\begin{longtable}{c@{ : }p{0.8\columnwidth}}\hline\hline
+
+    \textbf{用法} & \verb"vmstat [-a] [延迟 [总计检测次数]]" \quad$\Longleftarrow$ \texttt{CPU/内存等信息} \newline
+                    \verb"vmstat [-fs]" \quad$\Longleftarrow$ \texttt{内存相关}\newline
+                    \verb"vmstat [-S 单位]" \quad$\Longleftarrow$ \texttt{设置显示数据的单位}\newline
+                    \verb"vmstat [d]" \newline
+                    \verb"vmstat [-p 分区]"\\
+
+    \texttt{-a} & 使用inactive/active替代buffer/cache的内存. \\
+
+    \texttt{-f} & 开机到目前为止系统复制的进程数.\\
+
+    \texttt{-s} & 将一些事件导致的内存变化情况列表说明. \\
+
+    \texttt{-S} & 后面可以接单位,让显示数据有单位. \\
+
+    \texttt{-d} & 列出磁盘的读写总量统计表. \\
+
+    \texttt{-p} & 后面列出分区,可显示该分区的读写总量统计表. \\
+
+    \hline
+\end{longtable}
+
+\par
+6. \textbf{\texttt{fuser}}: 通过文件(或文件系统)找出正在使用该文件的程序.
+\begin{longtable}{c@{ : }p{0.8\columnwidth}}\hline\hline
+
+    \textbf{用法} & \verb"fuser [-umv] [-k [i] [-signal]] file/dir"\\
+
+    \texttt{-u} & 除了进程PID之外,同时列出该进程的所有者. \\
+
+    \texttt{-m} & 后面接的文件名会主动上提到该文件系统的顶层.\\
+
+    \texttt{-v} & 可以列出每个文件与程序还有命令的完整相关性. \\
+
+    \texttt{-k} & 找出使用该文件/目录的PID,并试图以SIGKILL这个信号给予该PID. \\
+
+    \texttt{-i} & 必须与 \texttt{-k} 配合, 交互模式. \\
+
+    \texttt{-signal} & 默认为 \texttt{-9}. \\
+
+    \hline
+\end{longtable}
+
+\par
+6. \textbf{\texttt{lsof}}: 列出被进程所打开的文件名.
+\begin{longtable}{c@{ : }p{0.7\columnwidth}}\hline\hline
+
+    \textbf{用法} & \verb"lsof [-aUu] [+d]"\\
+
+    \texttt{-a} & 多项数据需要``同时成立"才显示出结果. \\
+
+    \texttt{-U} & 列出Unix like系统的socket文件类型.\\
+
+    \texttt{-u} & 后面接username,列出该用户相关进程所打开的文件. \\
+
+    \texttt{+d} & 后面接目录,即找出某个目录下面已经被打开的文件. \\
+
+    \hline
+\end{longtable}
+
+\par
+7. \textbf{\texttt{pidof}}: 找出某个正在执行的进程的PID.
+\begin{longtable}{c@{ : }p{0.7\columnwidth}}\hline\hline
+
+    \textbf{用法} & \verb"pidof [-sx] 进程名"\\
+
+    \texttt{-s} & 仅列出一个PID而不列出所有的PID. \\
+
+    \texttt{-x} & 重复命中，返回指定程序的 shell脚本的 pid.\\
+
+    \hline
+\end{longtable}
